@@ -4,8 +4,8 @@ void insert(list* list, int key)
 {
 	// If height is H, then we will go down only H times.
 	// If H = MAX_LVL then we must save at least MAX_LVL points.
-	// But also we must save point at lvl 0 where we can't go down anymore,
-	// because we are at lvl 0, and we can't go right because next key is greater then new_key.
+	// But also we must save point at lvl 0 where we can't go down anymore
+	// because we are at lvl 0, and we can't go right because next key is greater or euqal to new_key.
 	//
 	// This is the point after which we must insert new element at lvl 0
 	// and it will be used to connect new_node with node_last;
@@ -115,7 +115,7 @@ void remove(list* list, int key)
 		{
 			step_down_points[lvl]->next[lvl] = curr->next[lvl];
 		}
-
+			
 		while(list->height > 0 && list->top_left == NULL)
 		{
 			list->height--;
