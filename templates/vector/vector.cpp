@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 class object
 {
 	void* ptr = nullptr;
@@ -114,7 +113,6 @@ public:
 	friend ostream& operator<<(ostream&, const object&);
 };
 
-
 ostream& operator<<(ostream& out, const object& o)
 {
 	out << "(" << o.bytes << ", " << reinterpret_cast<intptr_t> (o.ptr) << ")";
@@ -145,7 +143,7 @@ int main(int argc, char** argv)
 	v.push_back(*loh);
 	v.emplace_back("pidr");
 
-	print_vec(v);	
+	print_vec(v);
 	
 	return 0;
 }
