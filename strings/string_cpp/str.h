@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <ostream>
+#include <istream>
 
 class str { 
 	size_t sz = 0;
@@ -204,4 +205,17 @@ std::ostream& operator<<(std::ostream& out, const str& str)
 {
 	out << str.c_str();
 	return out;
+}
+
+std::istream& operator>>(std::istream& in, str& str)
+{
+	str = "";
+	in >> std::ws;
+	char ch;
+	while(in.get(ch) && !isspace(ch))
+	{
+		str += ch;
+	}
+
+	return in;
 }
