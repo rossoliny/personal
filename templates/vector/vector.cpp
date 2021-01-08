@@ -1,7 +1,6 @@
 #include <iostream>
 #include "vector.h"
-#include <vector>
-#include <string>
+#include "../../strings/string_cpp/str.h"
 
 using namespace std;
 
@@ -133,9 +132,9 @@ void print_vec(const vec<T>& v)
 
 int main(int argc, char** argv)
 {
-	vec<string> v;
-	string isa = "isa";
-	string* loh = new string("loh");
+	vec<str> v;
+	str isa = "isa";
+	str* loh = new str("loh");
 
 	v.push_back(isa);
 	v.push_back("loh");

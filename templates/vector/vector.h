@@ -1,5 +1,6 @@
 #pragma one
 
+
 template<typename T>
 class vec
 {
