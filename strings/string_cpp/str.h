@@ -165,7 +165,7 @@ public:
 			}
 		}
 		ptr[sz] = c;
-		ptr[sz++] = 0;
+		ptr[++sz] = 0;
 
 		return *this;
 	}
@@ -175,7 +175,7 @@ public:
 		return ptr;
 	}
 
-	const char* c_str()
+	char* c_str()
 	{
 		return ptr;
 	}
@@ -185,12 +185,33 @@ public:
 		return sz;
 	}
 
-	/*
 	size_t capacity() const
 	{
-		return space;
+		return (sz <= short_max) ? short_max : sz + space;
 	}
-	*/
+
+	bool operator==(const str& other)
+	{
+		if(sz != other.sz)
+		{ 
+			return false;
+		}
+
+		for(int i = 0; i < sz; ++i)
+		{
+			if(ptr[i] != other.ptr[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool operator!=(const str& other)
+	{
+		return !(*this == other);
+	}
 
 	~str()
 	{
@@ -200,6 +221,27 @@ public:
 		}
 	}
 }; 
+
+
+char* begin(str& s)
+{
+	return s.c_str();
+}
+
+char* end(str& s)
+{
+	return s.c_str() + s.size();
+}
+
+const char* begin(const str& s)
+{
+	return s.c_str();
+}
+
+const char* end(const str& s)
+{
+	return s.c_str() + s.size();
+}
 
 std::ostream& operator<<(std::ostream& out, const str& str)
 {
@@ -219,3 +261,29 @@ std::istream& operator>>(std::istream& in, str& str)
 
 	return in;
 }
+
+str& operator+=(str& a, const str& b)
+{
+	for(auto ch : b)
+	{
+		a += ch;
+	}
+	return a;
+}
+
+str operator+(const str& a, const str& b)
+{
+	str res{a};
+	res += b;
+	return res;
+}
+
+str operator""_s (const char* ptr, size_t)
+{
+	return str{ptr};
+}
+
+
+
+
+
