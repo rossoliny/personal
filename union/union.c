@@ -25,6 +25,14 @@ typedef union some_union
 } some_union;
 #pragma pack(pop)
 
+// max size is 9, but total size will be 16
+// because max align is 8
+// and nearest multiple of 8 that is > 9 = 16
+typedef union
+{
+	double d;
+	char data[9];
+} union_with_double;
 
 int main(int argc, char** argv)
 {
@@ -43,6 +51,8 @@ int main(int argc, char** argv)
 	printf("sizeof(some_union) = %d\n", sizeof_some_union);
 
 	printf("sizeof(union S) = %zu\n", sizeof(union S));
+
+	printf("sizeof(union_with_double) = %zu\n", sizeof(union_with_double));
 
 	return  0;
 }
