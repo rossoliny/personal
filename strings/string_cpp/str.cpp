@@ -1,10 +1,20 @@
 #include "str.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
+	cout << "sizeof(str): " << sizeof(str) << endl;
+	std::string string = "1234";
+	cout << "sizeof(std::string): " << sizeof string << endl;
+
+
+	cout << "sizeof(size_t): " << sizeof(size_t) << endl;
+	cout << "sizeof(char*) " << sizeof(char*) << endl;
+	cout << "sizeof(int) " << sizeof(int) << endl;
+
 	str s("abcdrfghij");
 
 	cout << s << '\n';
@@ -35,7 +45,6 @@ int main(int argc, char** argv)
 	{
 		cout << buf << " " << buf.size() << " " << buf.capacity() << '\n';
 	}	
-
 
 	return 0;
 }

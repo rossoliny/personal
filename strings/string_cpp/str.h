@@ -14,11 +14,11 @@ class str {
 
 	union 
 	{
-		int space;
+		size_t space; // additional space
 		char ch[short_max + 1];
 	};
 
-	void check_range(size_t pos) const
+	inline void check_range(size_t pos) const
 	{
 		if(pos >= sz)
 		{
@@ -38,17 +38,17 @@ class str {
 		if(other.sz <= short_max)
 		{
 			memcpy(this, &other, sizeof(other));
-			ptr = ch;
+			ptr = ch; // after copy ptr must not have address of other.ch, but address of this->ch
 		}
 		else
 		{
 			ptr = expand(other.ptr, other.sz + 1);
 			sz = other.sz;
-			space = 0;
-		}	
+			space = 0; // to copy we only expand to other.sz+1 so there is no additional space right now
+		}
 	}
 	
-	void move_from(str& other)
+	void move_from(str& other) noexcept
 	{
 		if(other.sz <= short_max)
 		{
@@ -61,7 +61,7 @@ class str {
 			sz = other.sz;
 			space = other.space;
 
-			other.ptr = other.ch;
+			other.ptr = other.ch; // now other is short string
 			other.sz = 0;
 			other.ch[0] = 0;
 		}
@@ -70,7 +70,9 @@ class str {
 
 public:
 
-	str() : sz{0}, ptr{ch}
+	str() noexcept 
+		: sz{0}
+		, ptr{ch} 
 	{
 		ch[0] = 0;
 	}
@@ -88,7 +90,7 @@ public:
 		copy_from(other);
 	}
 
-	str(str&& other)
+	str(str&& other) noexcept
 	{
 		move_from(other);
 	}
@@ -105,13 +107,13 @@ public:
 		return *this;
 	}
 
-	str& operator=(str&& other)
+	str& operator=(str&& other) noexcept
 	{
 		if(this == &other)
 		{
 			return *this;
 		}
-		if(short_max < sz) 
+		if(short_max < sz)
 		{
 			delete[] ptr;
 		}
@@ -119,12 +121,12 @@ public:
 		return *this;
 	}
 
-	const char& operator[](size_t pos) const
+	const char& operator[](size_t pos) const noexcept
 	{
 		return ptr[pos];
 	}
 
-	char& operator[](size_t pos) 
+	char& operator[](size_t pos) noexcept
 	{
 		return ptr[pos];
 	}
@@ -145,13 +147,13 @@ public:
 	{
 		if(sz == short_max)
 		{
-			int n = sz + sz + 2;
+			int n = sz + sz + 2; 
 			ptr = expand(ptr, n);
-			space = n - sz - 2;
+			space = n - sz - 2; // 15 chars, 1 new char, 1 null
 		}
 		else if(short_max < sz)
 		{
-			if(space == 0)
+			if(space == 0) // no additional space available
 			{
 				int n = sz + sz + 2;
 				char* p = expand(ptr, n);
@@ -170,27 +172,30 @@ public:
 		return *this;
 	}
 
-	const char* c_str() const
+	const char* c_str() const noexcept
 	{
 		return ptr;
 	}
 
-	char* c_str()
+	/*
+	// i dont understand why it's needed as const member functions can be called by non-const objects
+	const char* c_str() 
 	{
 		return ptr;
 	}
+	*/
 
-	size_t size() const
+	size_t size() const noexcept
 	{
 		return sz;
 	}
 
-	size_t capacity() const
+	size_t capacity() const noexcept
 	{
 		return (sz <= short_max) ? short_max : sz + space;
 	}
 
-	bool operator==(const str& other)
+	bool operator==(const str& other) const noexcept
 	{
 		if(sz != other.sz)
 		{ 
@@ -208,7 +213,7 @@ public:
 		return true;
 	}
 
-	bool operator!=(const str& other)
+	bool operator!=(const str& other) const noexcept
 	{
 		return !(*this == other);
 	}
@@ -220,25 +225,25 @@ public:
 			delete[] ptr;
 		}
 	}
-}; 
+};
 
 
-char* begin(str& s)
+char* begin(str& s) noexcept
+{
+	return const_cast<char*> (s.c_str());
+}
+
+char* end(str& s) noexcept
+{
+	return const_cast<char*> (s.c_str()) + s.size();
+}
+
+const char* begin(const str& s) noexcept
 {
 	return s.c_str();
 }
 
-char* end(str& s)
-{
-	return s.c_str() + s.size();
-}
-
-const char* begin(const str& s)
-{
-	return s.c_str();
-}
-
-const char* end(const str& s)
+const char* end(const str& s) noexcept
 {
 	return s.c_str() + s.size();
 }
