@@ -284,6 +284,3 @@ str operator""_s (const char* ptr, size_t)
 }
 
 
-
-
-
