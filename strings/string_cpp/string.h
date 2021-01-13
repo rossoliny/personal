@@ -55,7 +55,8 @@ namespace isa
 
 	class string
 	{
-		const static size_t short_max = 15;
+		static const size_t npos = -1;
+		static const size_t short_max = 15;
 
 		size_t size;
 		char* data;
@@ -69,6 +70,7 @@ namespace isa
 
 	public:
 		
+		// CONSTRUCTORS
 		string(void) noexcept
 			: size{ 0 }
 			, data{ small_buff }
@@ -119,6 +121,7 @@ namespace isa
 			}
 		}
 
+		// ASSIGNMENT OPERATORS
 		string& operator=(const string& other)
 		{
 			if(this == &other)
@@ -172,49 +175,8 @@ namespace isa
 			}
 		}
 
-		string& operator+=(const char ch)
-		{
-			if(size == short_max)
-			{
-				data = new char[size + size + 1 + 1];
-				strcpy(data, small_buff);
-				space = size;
-			}
-			else if(size > short_max)
-			{
-				if(space == 0)
-				{
-					char* new_mem = new char[size + size + 1 + 1];
-					strcpy(new_mem, data);
-					delete[] data;
-					data = new_mem;
-					space = size;
-				}
-				else 
-				{
-					--space;
-				}
-			}
-			data[size] = ch;
-			data[++size] = '\0';
 
-			return *this;
-		}
-
-		string& operator+=(const string& other)
-		{
-			char* ch = other.data;
-
-			while(*ch)
-			{
-				// operator+=(ch++);
-				*this += (*ch++);
-			}
-
-			return *this;
-		}
-
-		// element access
+		// DATA ACCESS FUNCTIONS
 		const char& operator[](const size_t i) const noexcept
 		{
 			return data[i];
@@ -273,7 +235,7 @@ namespace isa
 			return data[size-1];
 		}
 
-		// capacity
+		// CAPACITY FUNCTIONS
 		bool empty(void) const noexcept
 		{
 			return size == 0;
@@ -283,30 +245,108 @@ namespace isa
 		{
 			return size;
 		}
-		size_t length(void) const noexcept
-		{
-			return size;
-		}
+		size_t length(void) const noexcept { return size; }
 
-		size_t capacity(void) const noexcept
-		{
-			return (size <= short_max ? short_max : size + space);
-		}
+		size_t capacity(void) const ; // until c++11
+		size_t capacity(void) const noexcept; // since c++11 until c++20
+		constexpr size_t capacity(void) const noexcept; // since c++20
 
+		// TODO: implement
 		size_t max_size(void) const noexcept;
-		void reserve(size_t new_cap);
+		void reserve(const size_t new_cap);
 		void shrink_to_fit(void);
 			
-		// operations
-		void clear(void) noexcept
-		{
-			char* ptr = size <= short_max ? nullptr : data;
-			delete[] ptr;
-			size = 0;
-			data = small_buffer;
-			memset(small_buffer, 0, sizeof(small_buffer));
-		}
+		// OPERATIONS
+		void clear(void); // until c++11
+		void clear(void) noexcept; // since c++11 until c++20
+		constexpr void clear(void) noexcept; // since c++20
 
+		// TODO: insert() funciton and all its overloads
+
+		string& erase(const size_t index = 0, const size_t count = npos);
+		// TODO: erase() overloads
+
+		void push_back(const char ch); // until c++20
+		constexpr void push_back(const char ch); // since c++20
+
+		void pop_back(void); // until c++20
+		constexpr void pop_back(void); // since c++20
+
+		// TODO: append() function and all its overloads
+		
+		string& operator+=(const char ch);
+		string& operator+=(const string& other);
+		// TODO: operator+=() all remaining overloads
+
+		// TODO: compare() function and all its overloads
+
+		bool starts_with(const isa::string_view sv) const noexcept;
+		bool starts_with(const char ch) const noexcept;
+		bool starts_with(const char* str) const;
+
+		bool ends_with(const isa::string_view sv) const noexcept;
+		bool ends_with(char ch) const noexcept;
+		bool ends_with(const char* str) const;
+
+		bool contains(const isa::string_view sv) const noexcept;
+		bool contains(const char c) const noexcept;
+		bool contains(const char* str) const;
+
+		//TODO: replace() function and all its overloads
+
+		string substr(const size_t start = 0, const size_t len = npos) const;
+
+		size_t copy(char*const dest, const size_t len, const size_t start = 0) const;
+
+		void resize(const size_t new_sz); // until c++20
+		constexpr void resize(const size_t new_sz); // since c++20
+		void resize(const size_t new_sz, const char ch); // until c++20
+		constexpr void resize(const size_t new_sz, const char ch); // since c++20
+
+		void swap(string& other); // until c++17
+		void swap(string& other) noexcept; // since c++17 until c++20
+		constexpr void swap(string& other) noexcept; // since c++20
+
+
+		// SEARCH FUNCTIONS
+		size_t find(const string& str, size_t start = 0) const; // until c++11
+		size_t find(const string& str, size_t start = 0) const noexcept; // since c++11 until c++20
+		constexpr size_t find(const string& str, size_t start = 0) const noexcept; // since c++20
+		// TODO: find() function and all its overloads
+
+
+		size_t rfind(const string& str, size_t start = npos) const; // until c++11
+		size_t rfind(const string& str, size_t start = npos) const noexcept; // since c++11 until c++20
+		constexpr size_t rfing(const string& str, size_t start = npos) const noexcept; // since c++20
+		// TODO: rfind() function and all its overloads
+
+
+		size_t find_first_of(const string& str, size_t start = 0) const; // until c++11
+		size_t find_first_of(const string& str, size_t start = 0) const noexcept; // since c++11 until c++20
+		constexpr size_t find_first_of(const string& str, size_t start = 0) const noexcept; // since c++20
+		// TODO: find_first_of() function and all its overloads
+
+		
+		size_t find_first_not_of(const string& str, size_t start = 0) const; // until c++11
+		size_t find_first_not_of(const string& str, size_t start = 0) const noexcept; // since c++11 until c++20
+		constexpr size_t find_first_not_of(const string& str, size_t start = 0) const noexcept; // since c++20
+		// TODO: find_first_not_of() and all its overloads
+
+
+		size_t find_last_of(const string& str, size_t start = npos) const; // until c++11
+		size_t find_last_of(const string& str, size_t start = npos) const noexcept; // since c++11 until c++20
+		constexpr size_t find_last_of(const string& str, size_t start = npos) const noexcept; // since c++20
+		// TODO: find_last_of() and all its overloads
+
+
+		size_t find_last_not_of(const string& str, size_t start = npos) const; // until c++11
+		size_t find_last_not_of(const string& str, size_t start = npos) const noexcept; // since c++11 until c++20
+		constexpr size_t find_last_not_of(const string& str, size_t start = npos) const noexcept; // since c++20
+		// TODO: find_last_not_of() and all its overloads
+
+
+		// DESTRUCTOR
+		~string();
 
 	};
 
