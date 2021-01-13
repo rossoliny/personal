@@ -6,6 +6,7 @@ namespace isa
 {
 	class out_of_range
 	{
+		// TODO: Change to use isa::string&
 		char* what = nullptr;
 
 		void cpy(const char* p) 
@@ -296,7 +297,15 @@ namespace isa
 		void reserve(size_t new_cap);
 		void shrink_to_fit(void);
 			
-
+		// operations
+		void clear(void) noexcept
+		{
+			char* ptr = size <= short_max ? nullptr : data;
+			delete[] ptr;
+			size = 0;
+			data = small_buffer;
+			memset(small_buffer, 0, sizeof(small_buffer));
+		}
 
 
 	};
