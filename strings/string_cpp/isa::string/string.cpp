@@ -4,22 +4,68 @@
 
 namespace isa
 {
-	// CONSTRUSTORS
+	// UTILS
 	
+	void string::copy_from(const string& other)
+	{
+		if(other.size <= short_max)
+		{
+			memcpy(this, &other, sizeof(other));
+			data = small_buffer;
+		}
+		else
+		{
+			char* new_mem = new char[other.size + 1];
+			strcpy(new_mem, other.data);
+			size = other.size;
+			space = 0;
+		}
+	}
+
+	void string::move_from(string&& other) noexcept
+	{
+		if(other.size <= short_max)
+		{
+			memcpy(this, &other, sizeof(other));
+			data = small_buff;
+		}
+		else 
+		{
+			data = other.data;
+			size = other.size;
+			space = other.space;
+
+			other.data = other.small_buff;
+			other.data[0] = '\0';
+			other.size = 0;
+		}
+	}
+
+
+	// CONSTRUCTORS
+
 	string::string(void)
-		: size{ 0 }
-		, data{ small_buff }
+		: size { 0 }
+		, data { small_buff }
 	{
 		small_buff[0] = '\0';
 	}
 
 
 	string::string(const char* cstr)
-		: size{ strlen(cstr) }
-		, data{ size <= short_max ? small_buff : new char[size + 1] }
-		, space{ 0 } 
+		: size { strlen(cstr) }
+		, data { size <= short_max ? small_buff : new char[size + 1] }
+		, space { 0 } 
 	{
 		strcpy(data, cstr);
+	}
+
+	string::string(const char* buff, size_t count) 
+		: size { count }
+		, data { size <= short_max ? small_buff : new char[size + 1] }
+		, space { 0 }
+	{
+		memcpy(data, buff, count);
 	}
 
 	string::string(const string& other) 

@@ -128,7 +128,9 @@ namespace isa
 			size_t space;
 			char small_buff[short_max + 1];
 		};
-		
+
+		// UTILS		
+		void copy_from(const string& str);
 
 	public:
 		// MEMBER TYPES
