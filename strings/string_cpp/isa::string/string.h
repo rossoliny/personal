@@ -130,7 +130,8 @@ namespace isa
 		};
 
 		// UTILS		
-		void copy_from(const string& str);
+		void copy_from(const string& other);
+		void move_from(string&& other);
 
 	public:
 		// MEMBER TYPES

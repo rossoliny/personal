@@ -72,16 +72,7 @@ namespace isa
 		: size{ other.size }
 		, space{ 0 }
 	{
-		if(other.size <= short_max)
-		{
-			memcpy(this, &other, sizeof(other));
-			data = small_buff;
-		}
-		else
-		{
-			data = new char[other.size + 1];
-			strcpy(data, other.data);
-		}
+		copy_from(other);
 	}
 	
 
@@ -89,19 +80,7 @@ namespace isa
 		: size { other.size }
 		, data { other.data }
 	{
-		if(other.size <= short_max)
-		{
-			memcpy(this, &other, sizeof(other));
-			data = small_buff;
-		}
-		else 
-		{
-			space = other.space;
-
-			other.data = other.small_buff;
-			other.size = 0;
-			other.small_buff[0] = 0;
-		}
+		move_from(other);
 	}
 
 
@@ -112,22 +91,14 @@ namespace isa
 		{
 			return *this;
 		}
-
-		char* ptr = size <= short_max ? nullptr : data;
-		if(other.size <= short_max)
+		if(size > short_max)
 		{
-			memcpy(this, &other, sizeof(other));
-			data = small_buff;
-		}
-		else
-		{
-			data = new char[other.size + 1];
-			strcpy(data, other.data);
-			size = other.size;
-			space = 0;
+			delete[] data;
 		}
 
-		delete[] ptr;
+		//char* ptr = size <= short_max ? nullptr : data;
+		copy_from(other);
+		//delete[] ptr;
 		return *this;
 	}
 
@@ -137,26 +108,12 @@ namespace isa
 		{
 			return *this;
 		}
-		if(sz > short_max)
+		if(size > short_max)
 		{
 			delete[] data;
 		}
-
-		if(other.size <= short_max)
-		{
-			memcpy(this, &other, sizeof(other));
-			data = small_buff;
-		}
-		else
-		{
-			data = other.data;
-			size = other.size;
-			space = other.space;
-
-			other.data = other.small_buff;
-			other.data[0] = '\0';
-			other.size = 0;
-		}
+		move_from(other);
+		return *this;
 	}
 
 	// DATA ACCESS FUNCTIONS
