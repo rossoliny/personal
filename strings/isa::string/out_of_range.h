@@ -3,27 +3,27 @@
 // TODO: Learn standard implementation
 namespace isa {
 
-	class out_of_range
+	class out_of_range {
 
 		// TODO: Change to use isa::string&
-		char* what = nullptr;
+		char* _what = nullptr;
 
 		void cpy(const char* p) 
 		{
-			what = new char[strlen(p) + 1];
-			strcpy(what, p);
+			_what = new char[strlen(p) + 1];
+			strcpy(_what, p);
 		}
 
 	public:
 		out_of_range(void) = delete;
-		out_of_range(const char* what_arg)
+		out_of_range(const char* _what_arg)
 		{
-			cpy(what_arg);
+			cpy(_what_arg);
 		}
 
 		out_of_range(const out_of_range& other)
 		{
-			cpy(other.what);
+			cpy(other._what);
 		}
 
 		out_of_range& operator=(const out_of_range& other)
@@ -32,23 +32,23 @@ namespace isa {
 			{
 				return *this;
 			}
-			if(what)
+			if(_what)
 			{
-				delete[] what;
+				delete[] _what;
 			}
 			
-			cpy(other.what);
+			cpy(other._what);
 			return *this;
 		}
 
 		/*virtual*/ const char* what(void) const noexcept
 		{
-			return what;
+			return _what;
 		}
 
 		~out_of_range(void) noexcept
 		{
-			delete[] what;
+			delete[] _what;
 		}
 	};
 }
