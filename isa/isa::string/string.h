@@ -31,9 +31,8 @@ namespace isa
 	public:
 		// MEMBER TYPES
 
-		// TODO: create const_iterator
 		// TODO: create reverse_iterator
-		// TODO: create const_reverse_iterato
+		// TODO: create const_reverse_iterator
 		// TODO: create traits_type
 		using value_type = char;
 		using reference = char&;
