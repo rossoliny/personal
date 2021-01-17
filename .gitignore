@@ -1,8 +1,10 @@
 *
 !/**/
 !*.c
+!*.cc
 !*.cpp
 !*.h
+!*.hh
 !*.hpp
 !CMakeLists.txt
 build/
