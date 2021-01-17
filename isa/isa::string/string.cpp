@@ -10,14 +10,14 @@ namespace isa
 	{
 		if(other._size <= short_max)
 		{
-			memcpy(this, &other, sizeof(other));
+			std::memcpy(this, &other, sizeof(other));
 			_data = small_buff;
 		}
 		else
 		{
 			_data = new char[other._size + 1];
 			space = other.space;
-			strcpy(_data, other._data);
+			std::strcpy(_data, other._data);
 		}
 	}
 
@@ -25,7 +25,7 @@ namespace isa
 	{
 		if(other._size <= short_max)
 		{
-			memcpy(this, &other, sizeof(other));
+			std::memcpy(this, &other, sizeof(other));
 			_data = small_buff;
 		}
 		else 
@@ -50,11 +50,11 @@ namespace isa
 	}
 
 	string::string(const char* cstr)
-		: _size { strlen(cstr) }
+		: _size { std::strlen(cstr) }
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 		, space { 0 } 
 	{
-		strcpy(_data, cstr);
+		std::strcpy(_data, cstr);
 	}
 
 	string::string(const char* buff, size_t count) 
@@ -62,14 +62,14 @@ namespace isa
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 		, space { 0 }
 	{
-		memcpy(_data, buff, count);
+		std::memcpy(_data, buff, count);
 	}
 
 	string::string(size_t count, char ch)
 		: _size { count }
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 	{
-		memset(_data, ch, _size);
+		std::memset(_data, ch, _size);
 		_data[_size] = '\0';
 	}
 
@@ -88,7 +88,7 @@ namespace isa
 		}
 		_size = other._size - start < len ? other._size - start : len; // choose min possible _size
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
-		memcpy(_data, other._data + start, _size);
+		std::memcpy(_data, other._data + start, _size);
 		_data[_size] = '\0';
 	}
 
@@ -202,7 +202,7 @@ namespace isa
 
 	size_t string::capacity(void) const noexcept
 	{
-		return (_size <= short_max ? short_max : _size + space) + 1; // null terminator counted
+		return (_size <= short_max ? short_max : _size + space); // null terminator is not counted
 	}
 
 	void string::reserve(size_t n)
@@ -217,7 +217,7 @@ namespace isa
 		delete[] ptr;
 		_size = 0;
 		_data = small_buff;
-		memset(small_buff, 0, sizeof(small_buff));
+		std::memset(small_buff, 0, sizeof(small_buff));
 	}
 
 	bool string::empty(void) const noexcept
@@ -284,7 +284,7 @@ namespace isa
 		if(_size == short_max)
 		{
 			_data = new char[_size + _size + 2]; // 32 
-			strcpy(_data, small_buff);
+			std::strcpy(_data, small_buff);
 			space = _size; // 32 - 15(_size) - 1(null_term) - 1(new_char)
 		}
 		else if(_size > short_max)
@@ -292,7 +292,7 @@ namespace isa
 			if(space == 0)
 			{
 				char* new_mem = new char[_size + _size + 2];
-				strcpy(new_mem, _data);
+				std::strcpy(new_mem, _data);
 				delete[] _data;
 				_data = new_mem;
 				space = _size;
@@ -310,7 +310,7 @@ namespace isa
 
 	string& string::operator+=(const char* cstr)
 	{
-		size_t c_size = strlen(cstr);
+		size_t c_size = std::strlen(cstr);
 		size_t new_sz = _size + c_size;
 
 		// transforms from short to long string
@@ -320,7 +320,7 @@ namespace isa
 			size_t new_cap = (_size + 1) * (2 * ratio); // if new_sz=31 & _size=15 then allocates 64
 
 			char* new_mem = new char[new_cap];
-			strcpy(new_mem, _data);
+			std::strcpy(new_mem, _data);
 			_data = new_mem;
 			space = new_cap - new_sz - 1;
 		}
@@ -337,12 +337,12 @@ namespace isa
 				size_t new_cap = (_size + 1) * (2 * (ratio));
 
 				char* new_mem = new char[new_cap];
-				strcpy(new_mem, _data);
+				std::strcpy(new_mem, _data);
 				_data = new_mem;
 				space = new_cap - new_sz - 1;
 			}
 		}
-		strcpy(_data + _size, cstr);
+		std::strcpy(_data + _size, cstr);
 		_data[new_sz] = '\0';
 		_size = new_sz;
 		
@@ -836,4 +836,4 @@ namespace isa
 		return;
 	}
 
-}
+};

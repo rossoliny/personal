@@ -1,3 +1,4 @@
+#pragma once
 #include <cstring>
 
 // TODO: Learn standard implementation
@@ -10,8 +11,8 @@ namespace isa {
 
 		void cpy(const char* p) 
 		{
-			_what = new char[strlen(p) + 1];
-			strcpy(_what, p);
+			_what = new char[std::strlen(p) + 1];
+			std::strcpy(_what, p);
 		}
 
 	public:

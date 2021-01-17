@@ -4,3 +4,4 @@
 !*.cpp
 !*.h
 !*.hpp
+build/
