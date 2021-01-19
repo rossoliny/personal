@@ -2,6 +2,11 @@
 #include <string>
 #include <cstring>
 
+// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
+// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
+// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
+// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
+
 // Unit tests for isa::string constructors
 // std=c++11
 #include "../string.h"
@@ -49,6 +54,7 @@ TEST_CASE("fill constructor", tag "[fill]")
 		CHECK_MY_STRING(str, sz, sz, buff);
 
 		std::string std_str(16, 'i');
+
 		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
