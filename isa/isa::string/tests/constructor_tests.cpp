@@ -5,25 +5,19 @@
 // Unit tests for isa::string constructors
 // std=c++11
 #include "../string.h"
+#include "test_utils.h"
 
 #define tag "[constructors]"
-
-void COMPARE_WITH_STD(const isa::string& actual, const std::string& expected)
-{
-	TEST_CASE("isa::string must be identical to std::string")
-	{
-		CHECK(strcmp(actual.c_str() , expected.c_str()) == 0);
-		CHECK(actual.size() == expected.size());
-		CHECK(actual.capacity() == expected.capacity()); // short string
-	}
-}
+const static isa::string::size_type short_max = 15;
 
 TEST_CASE("default constructor must create short string", tag "[default]")
 {
-	isa::string actual;
-	std::string expected;
+	isa::string str;
+	std::string std_str;
 	
-	COMPARE_WITH_STD(actual, expected);
+	CHECK_MY_STRING(str, 0, short_max, "");
+
+	CMP_MINE_WITH_STD(str, std_str);
 }
 
 TEST_CASE("fill constructor", tag "[fill]")
@@ -31,10 +25,17 @@ TEST_CASE("fill constructor", tag "[fill]")
 
 	SECTION("must create short string")
 	{
-		isa::string actual(10, 'i');
-		std::string expected(10, 'i');
+		size_t sz = 10;
+		char buff[sz + 1];
+		memset(buff, 'i', sizeof(buff));
+		buff[sz] = '\0';
 
-		COMPARE_WITH_STD(actual, expected);
+		isa::string str(sz, 'i');
+
+		CHECK_MY_STRING(str, sz, short_max, buff);
+
+		std::string std_str(sz, 'i');
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("must create long string")
 	{
@@ -43,15 +44,12 @@ TEST_CASE("fill constructor", tag "[fill]")
 		memset(buff, 'i', sizeof(buff));
 		buff[sz] = '\0';
 
-
-		isa::string actual(sz, 'i');
+		isa::string str(sz, 'i');
 		
-		CHECK(actual.size() == sz);
-		CHECK(actual.capacity() == sz);
-		CHECK(strcmp(actual.c_str(), buff) == 0);
+		CHECK_MY_STRING(str, sz, sz, buff);
 
-		std::string expected(16, 'i');
-		COMPARE_WITH_STD(actual, expected);
+		std::string std_str(16, 'i');
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
 
@@ -63,7 +61,7 @@ TEST_CASE("from c-string constructor", tag "[c-string]")
 		isa::string actual(c_str);
 		std::string expected(c_str);
 
-		COMPARE_WITH_STD(actual, expected);
+		CMP_MINE_WITH_STD(actual, expected);
 	}
 	SECTION("must create long string")
 	{
@@ -71,7 +69,7 @@ TEST_CASE("from c-string constructor", tag "[c-string]")
 		isa::string actual(c_str);
 		std::string expected(c_str);
 		
-		COMPARE_WITH_STD(actual, expected);
+		CMP_MINE_WITH_STD(actual, expected);
 	}
 }
 
@@ -85,7 +83,7 @@ TEST_CASE("from buffer constructor", tag "[buffer]")
 		isa::string actual(buff, sizeof(buff));
 		std::string expected(buff, sizeof(buff));
 
-		COMPARE_WITH_STD(actual, expected);
+		CMP_MINE_WITH_STD(actual, expected);
 	}
 	SECTION("must create long string")
 	{
@@ -95,7 +93,7 @@ TEST_CASE("from buffer constructor", tag "[buffer]")
 		isa::string actual(buff, sizeof(buff));
 		std::string expected(buff, sizeof(buff));
 
-		COMPARE_WITH_STD(actual, expected);
+		CMP_MINE_WITH_STD(actual, expected);
 	}
 }
 
@@ -114,13 +112,13 @@ TEST_CASE("copy constructor", tag "[copy]")
 		isa::string to_copy(short_str);
 		isa::string actual(to_copy);
 		
-		COMPARE_WITH_STD(actual, expected_short);
+		CMP_MINE_WITH_STD(actual, expected_short);
 	}
 	SECTION("msut create long string")
 	{
 		isa::string to_copy(long_str);
 		isa::string actual(to_copy);
 
-		COMPARE_WITH_STD(actual, expected_long);
+		CMP_MINE_WITH_STD(actual, expected_long);
 	}
 }

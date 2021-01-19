@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include "string.h"
 
+#include <iostream>
+
 namespace isa
 {
 	// UTILS
@@ -10,7 +12,7 @@ namespace isa
 	{
 		if(other._size <= short_max)
 		{
-			std::memcpy(this, &other, sizeof(other));
+			std::memcpy((void*)this, &other, sizeof(other));
 			_data = small_buff;
 		}
 		else
@@ -25,7 +27,7 @@ namespace isa
 	{
 		if(other._size <= short_max)
 		{
-			std::memcpy(this, &other, sizeof(other));
+			std::memcpy((void*)this, &other, sizeof(other));
 			_data = small_buff;
 		}
 		else 
@@ -68,6 +70,7 @@ namespace isa
 	string::string(size_t count, char ch)
 		: _size { count }
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
+		, space { 0 }
 	{
 		std::memset(_data, ch, _size);
 		_data[_size] = '\0';

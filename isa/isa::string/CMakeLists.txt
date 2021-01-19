@@ -1,15 +1,21 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
+# set(CMAKE_C_COMPILER "gcc")
+# set(CMAKE_CXX_COMPILER "g++")
 
 project(string)
 
-set(MY_CXX_FLAGS "-Wall")
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CXX_FLAGS}")
+
+IF(CMAKE_COMPILER_IS_GNUCC)
+	message("GNU")
+
+	set(MY_FLAGS "-Wall -O0 -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_FLAGS}")
+	set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${MY_FLAGS}")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+
 
 set(STRING_SRC
 		string.cpp
