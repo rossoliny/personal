@@ -66,6 +66,20 @@ namespace isa
 		string(InputIterator first, InputIterator last); // range
 		*/
 
+		template<class InputIterator>
+		string(InputIterator first, InputIterator last)
+			: _size { static_cast<size_t> (std::distance(first, last)) }
+			, _data { _size <= short_max ? small_buff : new char[_size + 1] }
+			, space { 0 }
+		{
+			size_t i = 0;
+			while(first != last)
+			{
+				_data[i++] = *first;
+				++first;
+			}
+		}
+
 		// ASSIGNMENT
 		string& operator=(const string& other); // copy
 		string& operator=(string&& other) noexcept; // move

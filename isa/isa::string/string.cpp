@@ -88,7 +88,7 @@ namespace isa
 	{
 		if(start > other._size)
 		{
-			throw isa::out_of_range("string::constructor() - substring start index out is of bounds");
+			throw isa::out_of_range("string::constructor(const string&, size_t, size_t) - substring start index is out of bounds");
 		}
 		_size = other._size - start < len ? other._size - start : len; // choose min possible _size
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
@@ -114,7 +114,7 @@ namespace isa
 	// TODO: fix header/source template problem
 	template<class InputIterator>
 	string::string(InputIterator first, InputIterator last)
-		: _size { std::distance(first, last);
+		: _size { std::distance(first, last) }
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 		, space { 0 }
 	{
