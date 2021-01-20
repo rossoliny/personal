@@ -89,7 +89,7 @@ TEST_CASE("from buffer constructor", tag "[buffer]")
 	}
 	SECTION("must create long string")
 	{
-		char buff[17]; 
+		char buff[16]; 
 		memset(buff, 'c', 16);
 
 		isa::string str(buff, 16);
@@ -129,3 +129,21 @@ TEST_CASE("copy constructor", tag "[copy]")
 		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
+
+TEST_CASE("substring constructor", tag "[substring]")
+{
+	isa::string src("01234" "56789" "01234" "56789");
+
+	SECTION("must create short string")
+	{
+		isa::string str(src, 5, 15);
+
+		CHECK_MY_STRING(str, 15, short_max, "56789" "01234" "56789");
+	}
+	SECTION("must create long string")
+	{
+		
+	}
+
+}
+
