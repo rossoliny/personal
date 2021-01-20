@@ -65,6 +65,7 @@ namespace isa
 		, space { 0 }
 	{
 		std::memcpy(_data, buff, count);
+		_data[_size] = '\0';
 	}
 
 	string::string(size_t count, char ch)

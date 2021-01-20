@@ -30,31 +30,22 @@ TEST_CASE("fill constructor", tag "[fill]")
 
 	SECTION("must create short string")
 	{
-		size_t sz = 10;
-		char buff[sz + 1];
-		memset(buff, 'i', sizeof(buff));
-		buff[sz] = '\0';
+		char buff[4] = "iii";
 
-		isa::string str(sz, 'i');
+		isa::string str(3, 'i');
+		CHECK_MY_STRING(str, 3, short_max, buff);
 
-		CHECK_MY_STRING(str, sz, short_max, buff);
-
-		std::string std_str(sz, 'i');
+		std::string std_str(3, 'i');
 		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("must create long string")
 	{
-		size_t sz = 16;
-		char buff[sz + 1];
-		memset(buff, 'i', sizeof(buff));
-		buff[sz] = '\0';
+		char buff[17] = "iiiiiiiiii" "iiiiii";
 
-		isa::string str(sz, 'i');
-		
-		CHECK_MY_STRING(str, sz, sz, buff);
+		isa::string str(16, 'i');
+		CHECK_MY_STRING(str, 16, 16, buff);
 
 		std::string std_str(16, 'i');
-
 		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
@@ -63,19 +54,23 @@ TEST_CASE("from c-string constructor", tag "[c-string]")
 {
 	SECTION("must create short string")
 	{
-		char c_str[] = "0123456789";
-		isa::string actual(c_str);
-		std::string expected(c_str);
+		char c_str[] = "0123456789" "12345"; // 15
 
-		CMP_MINE_WITH_STD(actual, expected);
+		isa::string str(c_str);
+		CHECK_MY_STRING(str, 15, short_max, c_str);
+
+		std::string std_str(c_str);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("must create long string")
 	{
-		char c_str[] = "012345678910121315"; // 17
-		isa::string actual(c_str);
-		std::string expected(c_str);
-		
-		CMP_MINE_WITH_STD(actual, expected);
+		char c_str[] = "0123456789" "123456"; // 16
+
+		isa::string str(c_str);
+		CHECK_MY_STRING(str, 16, 16, c_str);
+
+		std::string std_str(c_str);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
 
@@ -83,48 +78,54 @@ TEST_CASE("from buffer constructor", tag "[buffer]")
 {
 	SECTION("must create short string")
 	{
-		char buff[10]; 
-		memset(buff, 0, sizeof(buff));
+		char buff[15];
+		memset(buff, 'c', 15);
 		
-		isa::string actual(buff, sizeof(buff));
-		std::string expected(buff, sizeof(buff));
+		isa::string str(buff, 15);
+		CHECK_MY_STRING(str, 15, short_max, buff);
 
-		CMP_MINE_WITH_STD(actual, expected);
+		std::string std_str(buff, 15);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("must create long string")
 	{
-		char buff[16]; 
-		memset(buff, 0, sizeof(buff));
-		
-		isa::string actual(buff, sizeof(buff));
-		std::string expected(buff, sizeof(buff));
+		char buff[17]; 
+		memset(buff, 'c', 16);
 
-		CMP_MINE_WITH_STD(actual, expected);
+		isa::string str(buff, 16);
+		CHECK_MY_STRING(str, 16, 16, buff);
+
+		std::string std_str(buff, 16);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
 
 TEST_CASE("copy constructor", tag "[copy]")
 {
-	char short_str[] = "short string"; // 15
-	char long_str[] = "this is long string 22";
-	std::string to_copy_short(short_str);
-	std::string to_copy_long(long_str);
-
-	std::string expected_short(to_copy_short);
-	std::string expected_long(to_copy_long);
-
 	SECTION("must create short string") 
 	{
-		isa::string to_copy(short_str);
-		isa::string actual(to_copy);
-		
-		CMP_MINE_WITH_STD(actual, expected_short);
+		char short_cstr[] = "short string 15"; // 15
+		isa::string to_copy(short_cstr);
+
+		isa::string str(short_cstr);
+		CHECK_MY_STRING(str, to_copy.size(), to_copy.capacity(), to_copy.c_str());
+		CHECK_MY_STRING(str, 15, 15, short_cstr);
+
+		std::string std_to_copy(short_cstr);
+		std::string std_str(std_to_copy);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("msut create long string")
 	{
-		isa::string to_copy(long_str);
-		isa::string actual(to_copy);
+		char long_cstr[] = "i am long string";
+		isa::string to_copy(long_cstr);
 
-		CMP_MINE_WITH_STD(actual, expected_long);
+		isa::string str(long_cstr);
+		CHECK_MY_STRING(str, to_copy.size(), to_copy.capacity(), to_copy.c_str());
+		CHECK_MY_STRING(str, 16, 16, long_cstr);
+
+		std::string std_to_copy(long_cstr);
+		std::string std_str(std_to_copy);
+		CMP_MINE_WITH_STD(str, std_str);
 	}
 }
