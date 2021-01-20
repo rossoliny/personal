@@ -58,27 +58,9 @@ namespace isa
 		string(const string& other); // copy
 		string(const string& other, size_t start, size_t len = npos); // substring
 		string(string&& other) noexcept; // move
-		/*
 		string(std::initializer_list<char> ilist); // initializer list
-		*/
-		/*
 		template<class InputIterator>
 		string(InputIterator first, InputIterator last); // range
-		*/
-
-		template<class InputIterator>
-		string(InputIterator first, InputIterator last)
-			: _size { static_cast<size_t> (std::distance(first, last)) }
-			, _data { _size <= short_max ? small_buff : new char[_size + 1] }
-			, space { 0 }
-		{
-			size_t i = 0;
-			while(first != last)
-			{
-				_data[i++] = *first;
-				++first;
-			}
-		}
 
 		// ASSIGNMENT
 		string& operator=(const string& other); // copy
@@ -375,3 +357,5 @@ namespace isa
 		}
 	};
 }
+
+#include "string.hpp"

@@ -3,7 +3,6 @@
 #include <cstring>
 
 // TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
-// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
 
 // Unit tests for isa::string constructors
 // std=c++11
@@ -208,7 +207,42 @@ TEST_CASE("range constructor", tag "[range]")
 		std::string std_str(src + 17, src + 32);
 		CMP_MINE_WITH_STD(str, std_str);
 	}
+	SECTION("must create long string")
+	{
+		isa::string str(src, src + 32);
 
+		CHECK_MY_STRING(str, 32, 32, src);
 
+		std::string std_str(src, src + 32);
+		CMP_MINE_WITH_STD(str, std_str);
+	}
 
+}
+
+TEST_CASE("from initializer list constructor", tag "[initializer list]")
+{
+	SECTION("must create short string")
+	{
+		isa::string str = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',	\
+	   						'1', '2', '3', '4', '5' };
+
+		CHECK_MY_STRING(str, 15, short_max, "01234" "56789" "12345");
+
+		std::string std_str = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',	\
+	   						'1', '2', '3', '4', '5' };
+
+		CMP_MINE_WITH_STD(str, std_str);
+	}
+	SECTION("must create long string")
+	{
+		isa::string str = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',	 \
+	   						'1', '2', '3', '4', '5', '6'};
+
+		CHECK_MY_STRING(str, 16, 16, "01234" "56789" "12345" "6");
+
+		std::string std_str = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',	 \
+	   						'1', '2', '3', '4', '5', '6' };
+
+		CMP_MINE_WITH_STD(str, std_str);
+	}
 }

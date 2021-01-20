@@ -102,29 +102,17 @@ namespace isa
 		steal_from(std::move(other));
 	}
 
-	/*
-	string::string(initializer_list<char> ilist)
+	string::string(std::initializer_list<char> ilist)
 		: string(ilist.begin(), ilist.end())
 	{
-		// begin and end return poiters so std::distance complexity is constant
+		// begin and end return poiters so std::distance complexity should be constant
 	}
-	*/
-
 	/*
-	// TODO: fix header/source template problem
-	template<class InputIterator>
-	string::string(InputIterator first, InputIterator last)
-		: _size { std::distance(first, last) }
-		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
-		, space { 0 }
-	{
-		while(first != last)
-		{
-			_data = *first;
-			++first;
-		}
-	}
-	*/
+	 * template<InputIterator>
+	 * string::string(InputIterator first, InputIterator second);
+	 *
+	 * *** Implementation in file string.hpp
+	 */
 
 	// ASSIGNMENT OPERATORS
 	string& string::operator=(const string& other)
