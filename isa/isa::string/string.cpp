@@ -41,7 +41,6 @@ namespace isa
 		}
 	}
 
-
 	// CONSTRUCTORS
 
 	string::string(void) //noexcept
@@ -51,6 +50,7 @@ namespace isa
 		small_buff[0] = '\0';
 	}
 
+	// never throws length_error as I dont know how to implement it
 	string::string(const char* cstr)
 		: _size { std::strlen(cstr) }
 		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
@@ -61,18 +61,26 @@ namespace isa
 
 	string::string(const char* buff, size_t count) 
 		: _size { count }
-		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 		, space { 0 }
 	{
+		if(count > max_size())
+		{
+			throw std::length_error("string::string(const char*, size_t) - size of constructed string will exceed maximum possible size");
+		}
+		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		std::memcpy(_data, buff, count);
 		_data[_size] = '\0';
 	}
 
 	string::string(size_t count, char ch)
 		: _size { count }
-		, _data { _size <= short_max ? small_buff : new char[_size + 1] }
 		, space { 0 }
 	{
+		if(count > max_size())
+		{
+			throw std::length_error("string::string(size_t, char) - size of constructed string will exceed maximum possible size");
+		}
+		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		std::memset(_data, ch, _size);
 		_data[_size] = '\0';
 	}
@@ -105,13 +113,15 @@ namespace isa
 	string::string(std::initializer_list<char> ilist)
 		: string(ilist.begin(), ilist.end())
 	{
-		// begin and end return poiters so std::distance complexity should be constant
+		// begin() and end() return poiters so std::distance complexity should be constant
 	}
 	/*
-	 * template<InputIterator>
-	 * string::string(InputIterator first, InputIterator second);
+   	 *  template<InputIterator>
+	 * 	string::string(InputIterator first, InputIterator second) 
+	 *	{
+	 *		Implementation in file string.hpp
+	 *	}
 	 *
-	 * *** Implementation in file string.hpp
 	 */
 
 	// ASSIGNMENT OPERATORS
@@ -177,8 +187,8 @@ namespace isa
 
 	size_t string::max_size(void) const noexcept
 	{
-		//TODO: impl 
-		return 0;	
+		//return std::numeric_limits<size_type>::max() / sizeof(value_type);
+		return (std::allocator_traits<allocator_type>::max_size(allocator_type()) - 1) / 2;
 	}
 
 	void string::resize(size_t new_sz)

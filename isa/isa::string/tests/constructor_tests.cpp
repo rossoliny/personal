@@ -5,11 +5,12 @@
 // TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
 
 // Unit tests for isa::string constructors
-// std=c++11
+// C++11
+
 #include "../string.h"
 #include "test_utils.h"
 
-#define tag "[constructors]"
+#define tag "[constructors] [construcotor]"
 const static isa::string::size_type short_max = 15;
 
 TEST_CASE("default constructor must create short string", tag "[default]")
@@ -24,26 +25,30 @@ TEST_CASE("default constructor must create short string", tag "[default]")
 
 TEST_CASE("fill constructor", tag "[fill]")
 {
+	char buff[17] = "iiiiiiiiii" "iiiiii";
 
 	SECTION("must create short string")
 	{
 		char buff[4] = "iii";
 
 		isa::string str(3, 'i');
-		CHECK_MY_STRING(str, 3, short_max, buff);
+		CHECK_MY_STRING(str, 3, short_max, buff + 13);
 
 		std::string std_str(3, 'i');
 		CMP_MINE_WITH_STD(str, std_str);
 	}
 	SECTION("must create long string")
 	{
-		char buff[17] = "iiiiiiiiii" "iiiiii";
-
 		isa::string str(16, 'i');
 		CHECK_MY_STRING(str, 16, 16, buff);
 
 		std::string std_str(16, 'i');
 		CMP_MINE_WITH_STD(str, std_str);
+	}
+	SECTION("when too long must throw std::length_error")
+	{
+		size_t max_size_t = -1;
+		REQUIRE_THROWS_AS(isa::string(max_size_t, 'i'), std::length_error);
 	}
 }
 
@@ -91,6 +96,10 @@ TEST_CASE("from buffer constructor", tag "[buffer]")
 
 		std::string std_str(buff, 16);
 		CMP_MINE_WITH_STD(str, std_str);
+	}
+	SECTION("when too long must throw")
+	{
+		REQUIRE_THROWS_AS(isa::string(nullptr, std::numeric_limits<size_t>::max()), std::length_error);
 	}
 }
 
@@ -216,7 +225,13 @@ TEST_CASE("range constructor", tag "[range]")
 		std::string std_str(src, src + 32);
 		CMP_MINE_WITH_STD(str, std_str);
 	}
+	SECTION("when too long buffer must throw")
+	{
+		char* begin = (char*) std::numeric_limits<intptr_t>::min();
+		char* end = (char*) std::numeric_limits<intptr_t>::max();
 
+		REQUIRE_THROWS_AS(isa::string(begin, end), std::length_error);
+	}
 }
 
 TEST_CASE("from initializer list constructor", tag "[initializer list]")
