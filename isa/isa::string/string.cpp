@@ -117,7 +117,7 @@ namespace isa
 	}
 
 	/****************************************************************
-   	 *	template<InputIterator>										*
+	 *	template<InputIterator>										*
 	 * 	string::string(InputIterator first, InputIterator second)	*
 	 *	{															*
 	 *		Implementation in file string.hpp						*
