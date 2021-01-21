@@ -115,62 +115,44 @@ namespace isa
 	{
 		// begin() and end() return poiters so std::distance complexity should be constant
 	}
-	/*
-   	 *  template<InputIterator>
-	 * 	string::string(InputIterator first, InputIterator second) 
-	 *	{
-	 *		Implementation in file string.hpp
-	 *	}
-	 *
-	 */
+
+	/****************************************************************
+   	 *	template<InputIterator>										*
+	 * 	string::string(InputIterator first, InputIterator second)	*
+	 *	{															*
+	 *		Implementation in file string.hpp						*
+	 *	}															*
+	 ***************************************************************/
 
 	// ASSIGNMENT OPERATORS
 	string& string::operator=(const string& other)
 	{
-		if(this == &other)
-		{
-			return *this;
-		}
-		if(_size > short_max)
-		{
-			delete[] _data;
-		}
-
-		//char* ptr = _size <= short_max ? nullptr : _data;
-		_size = other._size;
-		copy_from(other);
-		//delete[] ptr;
-		return *this;
+		return assign(other);
 	}
 
 	string& string::operator=(string&& other) noexcept
 	{
-		if(this == &other)
-		{
-			return *this;
-		}
-		if(_size > short_max)
-		{
-			delete[] _data;
-		}
-		_size = other._size;
-		steal_from(std::move(other));
-		return *this;
+		return assign(std::move(other));
 	}
 	
 	string& string::operator=(const char* cstr)
 	{
-		// TODO: impl
-		return *this;
-	}
-	string& string::operator=(const char ch)
-	{
-		// TODO: imp
-		return *this;
+		return assign(cstr);
 	}
 	string& string::operator=(std::initializer_list<char> ilist)
 	{
-		// TODO: imp
+		return assign(ilist);
+	}
+	string& string::operator=(const char ch)
+	{
+		if(_size > short_max)
+		{ 
+			delete[] _data;
+		}
+		_size = 1;
+		_data = small_buff;
+		_data[0] = ch;
+		_data[_size] = '\0';
 		return *this;
 	}
 
@@ -413,48 +395,69 @@ namespace isa
 
 	string& string::assign(const string& other)
 	{
-		// TODO: impl
+		if(this == &other)
+		{
+			return *this;
+		}
+		if(_size > short_max)
+		{
+			delete[] _data;
+		}
+
+		//char* ptr = _size <= short_max ? nullptr : _data;
+		_size = other._size;
+		copy_from(other);
+		//delete[] ptr;
+		return *this;
+	}
+
+	string& string::assign(string&& other) noexcept // move assignment
+	{
+		if(this == &other)
+		{
+			return *this;
+		}
+		if(_size > short_max)
+		{
+			delete[] _data;
+		}
+		_size = other._size;
+		steal_from(std::move(other));
 		return *this;
 	}
 
 	string& string::assign(const string& other, size_t start, size_t len)
 	{
-		// TODO: impl
-		return *this;
+		return assign(string(other, start, len));
 	}
+
 	string& string::assign(const char* cstr)
 	{
-		// TODO: impl
-		return *this;
+		return assign(string(cstr));
 	}
+
 	string& string::assign(const char* buff, size_t count)
 	{
-		// TODO: impl
-		return *this;
+		return assign(string(buff, count));
 	}
+
 	string& string::assign(size_t count, char ch)
 	{
-		// TODO: impl
-		return *this;
+		return assign(string(count, ch));
 	}
-	string& string::assign(string&& other) noexcept // move
-	{
-		// TODO: impl
-		return *this;
-	}
+
 	string& string::assign(std::initializer_list<char> ilist)
 	{
-		// TODO: impl
-		return *this;
+		return assign(string(ilist));
 	}
-	/*
-	template<class InputIterator>
-	string& string::assign(InputIterator first, InputIterator last)
-	{
-		// TODO: impl
-		return *this;
-	}
-	*/
+
+	/************************************************************************
+	 *	template<class InputIterator>										*
+	 *	string& string::assign(InputIterator first, InputIterator last)		*
+	 *	{																	*	
+	 * 		Implementation is file string.hpp								*
+	 *	}																	*
+	 ************************************************************************/
 
 	string& string::insert(size_t pos, const string& str)
 	{
@@ -582,8 +585,9 @@ namespace isa
 	
 	void string::swap(string& other) // noexcept since c++17
 	{
-		// TODO: impl
-		return;
+		string old_this(*this);
+		assign(std::move(other));
+		other.assign(std::move(old_this));
 	}
 
 	void string::push_back(const char ch) //constexpre since c++20
