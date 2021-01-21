@@ -18,14 +18,25 @@ int main()
 
 	for(int i = 2; i <= n; ++i)
 	{
-		if(phi[i] = i)
+		if(phi[i] == i)
 		{
-			for(int p = 0; p <=n; p += i)
+			for(int p = i; p <=n; p += i)
 			{
-				phi[p] -= phi[p] / p;
+				phi[p] -= phi[p] / i;
 			}
 		}
 	}
+	
 
+	for(int i = 1; i <= n; i++)
+	{
+		cout << i << ' ';
+	}
+	cout << '\n';
+	for(int i = 1; i <= n; ++i)
+	{
+		cout << phi[i] << ' ';
+	}
+	cout << '\n';
 
 }
