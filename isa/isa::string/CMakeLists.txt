@@ -24,6 +24,7 @@ set(STRING_SRC
 set(TEST_SRC 
 		tests/tests.cpp
 		tests/constructor_tests.cpp
+		tests/assign_tests.cpp
 	)
 
 find_package(Catch2 REQUIRED)

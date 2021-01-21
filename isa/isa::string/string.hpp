@@ -1,7 +1,4 @@
 
-
-
-
 namespace isa
 {
 	template<class InputIterator>
@@ -23,3 +20,4 @@ namespace isa
 	}
 
 }
+
