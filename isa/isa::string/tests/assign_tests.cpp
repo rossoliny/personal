@@ -42,3 +42,5 @@ TEST_CASE("copy assignment", tag "[copy]")
 		CMP_MINE_WITH_STD(res, std_s);
 	}
 }
+
+
