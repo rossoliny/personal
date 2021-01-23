@@ -6,56 +6,41 @@ using namespace std;
 
 int main()
 {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
 
+	#define N 10000
 
-	cout << "start\n";
-	int n = 10000;
+	int phi[N+1];
+	int sum[N+1];
 
-	long long phi[n+1];
-	for(int i = 0; i <= n; ++i)
+	for(int i = 0; i <= N; ++i)
 	{
 		phi[i] = i;
 	}
 
-	long long H[n+1];
-	memset(H, 0, n+1);
-
-	for(int i = 2; i <= n; ++i)
+	for(int i = 2; i <= N; ++i)
 	{
 		if(phi[i] == i)
 		{
-			for(int j = i; j <= n; j += i)
+			for(int j = i; j <= N; j += i)
 			{
 				phi[j] -= phi[j] / i;
 			}
 		}
 	}
 
-	/*
-		for(int i = 1; i <= n; ++i)
-		{
-			for(int j = 1; j <= n; ++j)
-			{
-				H[i-1] = H[i-1] + phi[i] * phi[j];
-			}		
-		}
-	*/
-	cout << "finish\n";
+	sum[0] = 0;
+	for(int i = 1; i <= N; ++i)
+	{
+		sum[i] = sum[i - 1] + phi[i];
+	}
 
-	int t;
+	int t, n;
 	cin >> t;
 	while(t--)
 	{
-		int x;
-		cin >> x;
-		int h = 0;
-		for(int i = 1; i <= x; i++)
-		{
-			for(int j = 1; j <= x; j++)
-			{
-				h += phi[i] * phi[j];
-			}
-		}
-		cout << h << '\n';
+		cin >> n;
+		cout << ((long long)sum[n]) * sum[n] << '\n';
 	}
 }
