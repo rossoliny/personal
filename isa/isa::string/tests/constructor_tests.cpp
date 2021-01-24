@@ -10,7 +10,7 @@
 #include "../string.h"
 #include "test_utils.h"
 
-#define tag "[constructors] [construcotor]"
+#define tag "[constructors] [constructor]"
 const static isa::string::size_type short_max = 15;
 
 TEST_CASE("default constructor must create short string", tag "[default]")
