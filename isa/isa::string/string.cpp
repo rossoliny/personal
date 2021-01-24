@@ -1,5 +1,6 @@
 #include <cstring>
 #include <stdexcept>
+#include <cmath>
 #include "string.h"
 
 #include <iostream>
@@ -7,6 +8,45 @@
 namespace isa
 {
 	// UTILS
+
+	void inline string::check_index(size_t index, size_t size) const
+	{
+		if(index > size)
+		{
+			throw isa::out_of_range("index is out of bounds");
+		}
+	}
+
+	inline void string::check_new_size(size_t new_sz) const
+	{
+		if(new_sz > max_size())
+		{
+			throw std::length_error("resulting string would exceed maximum possible length");
+		}
+	}
+
+	bool string::is_small() const
+	{
+		return (intptr_t)_data == (intptr_t)small_buff && _size <= short_max;
+	}
+
+	void string::grant_capacity(size_t new_sz)
+	{
+		if(new_sz > capacity())
+		{
+			size_t new_cap = capacity() * 2;
+			new_cap = new_sz > new_cap ? new_sz : new_cap;
+
+			if(!is_small()) { delete[] _data; }
+
+			_data = new char[new_cap + 1];
+			space = new_cap - new_sz;
+		}
+		else if(!is_small())
+		{
+			space = capacity() - new_sz;
+		}
+	}
 
 	void string::copy_from(const string& other)
 	{
@@ -63,10 +103,7 @@ namespace isa
 		: _size { count }
 		, space { 0 }
 	{
-		if(count > max_size())
-		{
-			throw std::length_error("string::string(const char*, size_t) - size of constructed string will exceed maximum possible size");
-		}
+		check_new_size(count);
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		std::memcpy(_data, buff, count);
 		_data[_size] = '\0';
@@ -76,10 +113,7 @@ namespace isa
 		: _size { count }
 		, space { 0 }
 	{
-		if(count > max_size())
-		{
-			throw std::length_error("string::string(size_t, char) - size of constructed string will exceed maximum possible size");
-		}
+		check_new_size(count);
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		std::memset(_data, ch, _size);
 		_data[_size] = '\0';
@@ -94,10 +128,7 @@ namespace isa
 	string::string(const string& other, size_t start, size_t len)
 		: space { 0 }
 	{
-		if(start > other._size)
-		{
-			throw isa::out_of_range("string::constructor(const string&, size_t, size_t) - substring start index is out of bounds");
-		}
+		check_index(start, other._size);
 		_size = other._size - start < len ? other._size - start : len; // choose min possible _size
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		std::memcpy(_data, other._data + start, _size);
@@ -186,7 +217,7 @@ namespace isa
 
 	size_t string::capacity(void) const noexcept
 	{
-		return (_size <= short_max ? short_max : _size + space); // null terminator is not counted
+		return (is_small() ? short_max : _size + space); // null terminator is not counted
 	}
 
 	void string::reserve(size_t n)
@@ -227,18 +258,12 @@ namespace isa
 
 	const char& string::at(const size_t pos) const
 	{
-		if(pos >= _size)
-		{
-			throw ::isa::out_of_range("isa::string::at() - index out of range");
-		}
+		check_index(pos, _size);
 		return _data[pos];	
 	}
 	char& string::at(const size_t pos)
 	{
-		if(pos >= _size)
-		{
-			throw ::isa::out_of_range("isa::string::at() - index out of range");
-		}
+		check_index(pos, _size);
 		return _data[pos];
 	}
 	
@@ -393,24 +418,6 @@ namespace isa
 	}
 	*/
 
-	string& string::assign(const string& other)
-	{
-		if(this == &other)
-		{
-			return *this;
-		}
-		if(_size > short_max)
-		{
-			delete[] _data;
-		}
-
-		//char* ptr = _size <= short_max ? nullptr : _data;
-		_size = other._size;
-		copy_from(other);
-		//delete[] ptr;
-		return *this;
-	}
-
 	string& string::assign(string&& other) noexcept // move assignment
 	{
 		if(this == &other)
@@ -426,24 +433,64 @@ namespace isa
 		return *this;
 	}
 
+	string& string::assign(const string& other)
+	{
+		if(this == &other)
+		{
+			return *this;
+		}
+
+		return assign(other, 0, npos);
+	}
+
 	string& string::assign(const string& other, size_t start, size_t len)
 	{
-		return assign(string(other, start, len));
+		check_index(start, other._size);
+
+		size_t new_sz = other._size - start < len ? other._size - start : len;
+		// other can never be longer than max_size();
+		//check_new_capacity(new_sz);
+		grant_capacity(new_sz);
+
+		memmove(_data, other._data + start, new_sz);
+		_data[new_sz] = '\0';
+		_size = new_sz;
+
+		return *this;
 	}
 
 	string& string::assign(const char* cstr)
 	{
-		return assign(string(cstr));
+		size_t new_sz = strlen(cstr);
+		// c-string should not be longer than max_size()
+		//check_new_size(new_sz);
+		grant_capacity(new_sz);
+		strcpy(_data, cstr);
+		_size = new_sz;
+
+		return *this;	
 	}
 
 	string& string::assign(const char* buff, size_t count)
 	{
-		return assign(string(buff, count));
+		check_new_size(count);
+		grant_capacity(count);
+		memmove(_data, buff, count);
+		_data[count] = '\0';
+		_size = count;
+
+		return *this;
 	}
 
 	string& string::assign(size_t count, char ch)
 	{
-		return assign(string(count, ch));
+		check_new_size(count);
+		grant_capacity(count);
+		memset(_data, ch, count);
+		_data[count] = '\0';
+		_size = count;
+
+		return *this;
 	}
 
 	string& string::assign(std::initializer_list<char> ilist)
@@ -455,7 +502,7 @@ namespace isa
 	 *	template<class InputIterator>										*
 	 *	string& string::assign(InputIterator first, InputIterator last)		*
 	 *	{																	*	
-	 * 		Implementation is file string.hpp								*
+	 * 		Implementation in file string.hpp								*
 	 *	}																	*
 	 ************************************************************************/
 

@@ -6,10 +6,8 @@ namespace isa
 		: _size { static_cast<size_t> (std::distance(first, last)) }
 		, space { 0 }
 	{
-		if(_size > max_size())
-		{
-			throw std::length_error("string::string(InputIterator, InputIteartor) - size of constructed string will exceed maximum possible size");
-		}
+		check_new_size(_size);
+
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
 		size_t i = 0;
 		while(first != last)
@@ -17,6 +15,7 @@ namespace isa
 			_data[i++] = *first;
 			++first;
 		}
+		_data[_size] = '\0';
 	}
 
 }
