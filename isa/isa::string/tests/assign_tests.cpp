@@ -458,5 +458,82 @@ TEST_CASE("fill assignment", tag "[fill]")
 
 TEST_CASE("range assignment", tag "[range]")
 {
+	using const_ptr = isa::string::const_pointer;
+	using std_const_ptr = std::string::const_pointer;
+
+	const_ptr first_long = long_src.c_str();
+	const_ptr last_long = long_src.c_str() + long_src.size();
+
+	const_ptr first_short = short_src.c_str();
+	const_ptr last_short = short_src.c_str() + short_src.size();
+
+	SECTION("long string as target")
+	{
+		isa::string str("range test long string as target");
+		size_t old_cap = str.capacity();
+		std::string std_s("range test long string as target");
+
+		SECTION("assign short as source")
+		{
+			str.assign<const_ptr>(first_short + 1, last_short);
+			
+			CHECK_MY_STRING(str, short_src.size() - 1, old_cap, first_short + 1);
+
+			std_s.assign<std_const_ptr>(first_short + 1, last_short);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("assign long as source")
+		{
+			str.assign<const_ptr>(first_long + 2, last_long - 3);
+			
+			CHECK_MY_STRING(str, long_src.size() - 5, old_cap * 2, strndup(first_long + 2, long_src.size() - 3));
+
+			std_s.assign<std_const_ptr>(first_long + 2, last_long - 3);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("short string as target")
+	{
+		isa::string str("short");
+		std::string std_s("short");
+		
+		SECTION("short source, preserve capacity")
+		{
+			str.assign<const_ptr>(first_short, last_short);
+			CHECK_MY_STRING(str, short_src.size(), short_max, first_short);
+
+			std_s.assign<std_const_ptr>(first_short, last_short);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("long source, double capacity")
+		{
+			str.assign<const_ptr>(first_long, last_long - 20);
+			CHECK_MY_STRING(str, long_src.size() - 20, short_max * 2, strndup(first_long, long_src.size() - 20));
+
+			std_s.assign<std_const_ptr>(first_long, last_long - 20);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("long source, allocate required capacity")
+		{
+			str.assign<const_ptr>(first_long, last_long);
+			
+			CHECK_MY_STRING(str, long_src.size(), long_src.capacity(), first_long);
+
+			std_s.assign<std_const_ptr>(first_long, last_long);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("assignment of too long string throws 'std::length_error'")
+	{
+		isa::string str;
+		REQUIRE_THROWS_AS(str.assign<const_ptr>(nullptr, (const_ptr) str.max_size() + 1), std::length_error);
+	}
+}
+
+
+
+
+TEST_CASE("initializer list assignment", tag "[assign]")
+{
 	
 }
