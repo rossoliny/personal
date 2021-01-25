@@ -14,31 +14,9 @@ namespace isa
 
 	class string
 	{
-		static const size_t short_max = 15;
-
-		size_t _size;
-		char* _data;
-
-		union 
-		{
-			size_t space;
-			char small_buff[short_max + 1];
-		};
-
-		// UTILS		
-
-		void check_new_size(size_t new_sz) const;
-		void check_index(size_t index, size_t size) const;
-		bool is_small() const;
-		void grant_capacity(size_t new_sz);
-		void copy_from(const string& other);
-		void steal_from(string&& other) noexcept;
-
 	public:
 		// MEMBER TYPES
 
-		// TODO: create reverse_iterator
-		// TODO: create const_reverse_iterator
 		// TODO: create traits_type
 		using value_type = char;
 		using reference = char&;
@@ -49,8 +27,32 @@ namespace isa
 		using difference_type = std::ptrdiff_t;
 		using iterator = ::isa::string_iterator;
 		using const_iterator = const ::isa::string_iterator;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using allocator_type = std::allocator<char>;
 
+	private:
+		// REPRESENTATION
+		static const size_t short_max = 15;
+
+		size_type _size;
+		value_type* _data;
+
+		union 
+		{
+			size_type space;
+			value_type small_buff[short_max + 1];
+		};
+
+		// UTILS		
+		void check_new_size(size_t new_sz) const;
+		void check_index(size_t index, size_t size) const;
+		bool is_small() const;
+		void verify_capacity(size_t new_sz);
+		void copy_from(const string& other);
+		void steal_from(string&& other) noexcept;
+
+	public:
 
 		// MEMBER CONSTANTS
 		static const size_t npos = -1;
@@ -132,10 +134,8 @@ namespace isa
 		string& assign(size_t count, char ch);
 		string& assign(string&& other) noexcept; // move
 		string& assign(std::initializer_list<char> ilist);
-		/*
 		template<class InputIterator>
 		string& assign(InputIterator first, InputIterator last);
-		*/
 
 		string& insert(size_t pos, const string& str);
 		string& insert(size_t pos, const string& str, size_t start, size_t len);

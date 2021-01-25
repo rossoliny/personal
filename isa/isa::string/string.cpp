@@ -30,7 +30,7 @@ namespace isa
 		return (intptr_t)_data == (intptr_t)small_buff && _size <= short_max;
 	}
 
-	void string::grant_capacity(size_t new_sz)
+	void string::verify_capacity(size_t new_sz)
 	{
 		if(new_sz > capacity())
 		{
@@ -450,7 +450,7 @@ namespace isa
 		size_t new_sz = other._size - start < len ? other._size - start : len;
 		// other can never be longer than max_size();
 		//check_new_capacity(new_sz);
-		grant_capacity(new_sz);
+		verify_capacity(new_sz);
 
 		memmove(_data, other._data + start, new_sz);
 		_data[new_sz] = '\0';
@@ -461,10 +461,14 @@ namespace isa
 
 	string& string::assign(const char* cstr)
 	{
+		if(_data == cstr)
+		{
+			return *this;
+		}
 		size_t new_sz = strlen(cstr);
 		// c-string should not be longer than max_size()
 		//check_new_size(new_sz);
-		grant_capacity(new_sz);
+		verify_capacity(new_sz);
 		strcpy(_data, cstr);
 		_size = new_sz;
 
@@ -473,8 +477,12 @@ namespace isa
 
 	string& string::assign(const char* buff, size_t count)
 	{
+		if(_data == buff && _size == count)
+		{
+			return *this;
+		}
 		check_new_size(count);
-		grant_capacity(count);
+		verify_capacity(count);
 		memmove(_data, buff, count);
 		_data[count] = '\0';
 		_size = count;
@@ -485,7 +493,7 @@ namespace isa
 	string& string::assign(size_t count, char ch)
 	{
 		check_new_size(count);
-		grant_capacity(count);
+		verify_capacity(count);
 		memset(_data, ch, count);
 		_data[count] = '\0';
 		_size = count;
@@ -495,7 +503,7 @@ namespace isa
 
 	string& string::assign(std::initializer_list<char> ilist)
 	{
-		return assign(string(ilist));
+		return assign(ilist.begin(), ilist.end());
 	}
 
 	/************************************************************************

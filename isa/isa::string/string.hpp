@@ -1,3 +1,4 @@
+#pragma once
 
 namespace isa
 {
@@ -9,14 +10,26 @@ namespace isa
 		check_new_size(_size);
 
 		_data = _size <= short_max ? small_buff : new char[_size + 1];
-		size_t i = 0;
-		while(first != last)
-		{
-			_data[i++] = *first;
-			++first;
-		}
+		std::copy(static_cast<const value_type*> (first), static_cast<const value_type*> (last), _data);
 		_data[_size] = '\0';
 	}
 
+	template<class InputIterator>
+	string& string::assign(InputIterator first, InputIterator last)
+	{
+		if(static_cast<const value_type*> (first) == _data && static_cast<const value_type*> (last) == _data + _size)
+		{
+			return *this;
+		}
+		size_t new_sz = static_cast<size_t> (std::distance(first, last));
+		check_new_size(new_sz);
+
+		verify_capacity(new_sz);
+		std::copy(static_cast<const value_type*> (first), static_cast<const value_type*> (last), _data);
+		_data[new_sz] = '\0';
+		_size = new_sz;
+
+		return *this;
+	}
 }
 

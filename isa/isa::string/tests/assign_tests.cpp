@@ -5,7 +5,7 @@
 
 // Unit tests for isa::string::assign functions
 // C++11
-// Assuming that all construtor tests passed
+// Assuming that all construtor tests are passed
 
 #define tag "[assign][function]"
 
@@ -41,6 +41,57 @@ TEST_CASE("copy assignment", tag "[copy]")
 		CMP_MINE_WITH_STD(res, std_s);
 	}
 }
+
+
+
+
+TEST_CASE("move assignment", tag "[move]")
+{
+	size_t long_len = 25;
+	char long_cstr[long_len + 1] = "rvalue with 25 characters";
+	isa::string long_rval(long_cstr);
+	std::string long_std_r(long_cstr);
+
+	size_t short_len = 14;
+	char short_cstr[short_len + 1] = "rvalue with 14";
+	isa::string short_rval(short_cstr);
+	std::string short_std_r(short_cstr);
+
+
+	SECTION("assign to short")
+	{
+		isa::string str("short str");
+		std::string std_s("short str");
+
+		SECTION("steal from short string, remain short, dont change src")
+		{
+			str.assign(std::move(short_rval));
+			
+			CHECK_MY_STRING(str, short_len, short_max, short_cstr);
+			CHECK_MY_STRING(short_rval, short_len, short_max, short_cstr);
+
+			std_s.assign(std::move(short_std_r));
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("steal from long string and become long, change src")
+		{
+			str.assign(std::move(long_rval));
+			
+			CHECK_MY_STRING(str, long_len, long_len, long_cstr);
+			CHECK_MY_STRING(long_rval, 0, short_max, "");
+
+			std_s.assign(std::move(long_std_r));
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("assign to long")
+	{
+		
+	}
+}
+
+
+
 
 TEST_CASE("substring assignment", tag "[substring]")
 {
@@ -151,6 +202,10 @@ TEST_CASE("substring assignment", tag "[substring]")
 	}
 }
 
+
+
+
+
 TEST_CASE("c-string assignment", tag "[c-string]")
 {
 	SECTION("assign to long string")
@@ -214,5 +269,194 @@ TEST_CASE("c-string assignment", tag "[c-string]")
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 	}
+	SECTION("when assign itself then do not do anything")
+	{
+		isa::string str("c-string self assignment test");
+		std::string std_s("c-string self assignment test");
 
+		const char* old_data = str.c_str();
+		size_t old_sz = str.size();
+		size_t old_cap = str.capacity();
+
+		str.assign(str.c_str());
+		REQUIRE(old_data == str.c_str());
+		CHECK_MY_STRING(str, old_sz, old_cap, old_data);
+
+		std_s.assign(std_s.c_str());
+		CMP_MINE_WITH_STD(str, std_s);
+	}
+}
+
+
+
+
+TEST_CASE("buffer assignment", tag "[buffer]")
+{
+	char buff[4096];
+	memset(buff, 'c', sizeof(buff));
+
+	SECTION("assign to long string")
+	{
+		isa::string str("buffer test not short str 28");
+		size_t old_cap = str.capacity();
+		std::string std_s("buffer test not short str 28");
+
+		SECTION("must copy 3 chars and preserve old capacity")
+		{
+			str.assign(buff, 3);
+			CHECK_MY_STRING(str, 3, old_cap, "ccc");
+
+			std_s.assign(buff, 3);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("must double the capacity")
+		{	
+			str.assign(buff, old_cap + 10);
+			buff[old_cap + 10] = '\0';
+			CHECK_MY_STRING(str, old_cap + 10, old_cap * 2, buff);
+
+			std_s.assign(buff, std_s.capacity() + 10);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("assign to short string")
+	{
+		isa::string str("test c-str");
+		std::string std_s("test c-str");
+		
+		SECTION("must remain short")
+		{
+			str.assign(buff, 3);
+			CHECK_MY_STRING(str, 3, short_max, "ccc");
+
+			std_s.assign(buff, 3);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("must double the capacity")
+		{	
+			str.assign(buff, 20);
+			buff[20] = '\0';
+			CHECK_MY_STRING(str, 20, short_max * 2, buff);
+
+			std_s.assign(buff, 20);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("when doubled capacity isn't enough must alloc only required space (source's size)")
+		{
+			str.assign(buff, sizeof(buff) - 1);
+			buff[sizeof(buff) - 1] = '\0';
+			CHECK_MY_STRING(str, sizeof(buff) - 1, sizeof(buff) - 1, buff);
+
+			std_s.assign(buff, sizeof(buff) - 1);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("when assign itself then do not do anything")
+	{
+		isa::string str("buffer self assignment test");
+		std::string std_s("buffer self assignment test");
+
+		const char* old_data = str.c_str();
+		size_t old_sz = str.size();
+		size_t old_cap = str.capacity();
+
+		str.assign(str.data(), str.size());
+		REQUIRE(old_data == str.c_str());
+		CHECK_MY_STRING(str, old_sz, old_cap, old_data);
+
+		std_s.assign(std_s.c_str());
+		CMP_MINE_WITH_STD(str, std_s);
+	}
+	SECTION("if 'count' > 'string::max_size()' then must throw 'std::length_error'")
+	{
+		isa::string str;
+		//REQUIRE_THROWS_AS(std_s.assign(long_std, long_std.size() + 1, 10), std::out_of_range);
+		REQUIRE_THROWS_AS(str.assign(long_src.c_str(), str.max_size() + 1), std::length_error);
+	}
+
+}
+
+
+
+
+
+TEST_CASE("fill assignment", tag "[fill]")
+{
+	char expected[4096];
+	char ch = 'n';
+	memset(expected, ch, sizeof(expected));
+
+	SECTION("assign to long string")
+	{
+		isa::string str("fill test not short len = 28");
+		size_t old_cap = str.capacity();
+		std::string std_s("fill test not short len = 28");
+
+		SECTION("must adjust capacity and fill with 2000 chars")
+		{
+			str.assign(2000, ch);
+			expected[2000] = '\0';
+			CHECK_MY_STRING(str, 2000, 2000, expected);
+
+			std_s.assign(2000, ch);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("must fill 20 chars and preserve old capacity")
+		{
+			str.assign(20, ch);
+			expected[20] = '\0';
+			CHECK_MY_STRING(str, 20, old_cap, expected);
+
+			std_s.assign(20, ch);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("must double the capacity")
+		{	
+			str.assign(old_cap + 10, ch);
+			expected[old_cap + 10] = '\0';
+			CHECK_MY_STRING(str, old_cap + 10, old_cap * 2, expected);
+
+			std_s.assign(std_s.capacity() + 10, ch);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("assign to short string")
+	{
+		isa::string str("test c-str");
+		std::string std_s("test c-str");
+		
+		SECTION("must remain short")
+		{
+			str.assign(10, ch);
+			expected[10] = '\0';
+			CHECK_MY_STRING(str, 10, short_max, expected);
+
+			std_s.assign(10, ch);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("must double the capacity")
+		{	
+			str.assign(20, ch);
+			expected[20] = '\0';
+			CHECK_MY_STRING(str, 20, short_max * 2, expected);
+
+			std_s.assign(20, ch);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("if 'count' > 'string::max_size()' then must throw 'std::length_error'")
+	{
+		isa::string str;
+		//REQUIRE_THROWS_AS(std_s.assign(long_std, long_std.size() + 1, 10), std::out_of_range);
+		size_t count = str.max_size();
+		REQUIRE_THROWS_AS(str.assign(count + 1, ch), std::length_error);
+	}
+
+}
+
+
+
+TEST_CASE("range assignment", tag "[range]")
+{
+	
 }
