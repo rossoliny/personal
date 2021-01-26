@@ -538,8 +538,8 @@ TEST_CASE("initializer list assignment", tag "[assign]")
 	std::initializer_list long_il = {'l', 'o', 'n', 'g', ' ', 'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'e', 'r', ' ', 'l', 'i', 's', 't'};
 	std::initializer_list short_il = {'s', 'h', 'o', 'r', 't', ' ', 'i', 'l'};
 
-	const char* long_exp = std::string(long_il).c_str();
-	const char* short_exp = std::string(short_il).c_str();
+	const char* long_exp = strdup(std::string(long_il).c_str());
+	const char* short_exp = strdup(std::string(short_il).c_str());
 
 	SECTION("short string target")
 	{
