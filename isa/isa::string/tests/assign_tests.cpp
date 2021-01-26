@@ -535,5 +535,59 @@ TEST_CASE("range assignment", tag "[range]")
 
 TEST_CASE("initializer list assignment", tag "[assign]")
 {
-	
+	std::initializer_list long_il = {'l', 'o', 'n', 'g', ' ', 'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'e', 'r', ' ', 'l', 'i', 's', 't'};
+	std::initializer_list short_il = {'s', 'h', 'o', 'r', 't', ' ', 'i', 'l'};
+
+	const char* long_exp = std::string(long_il).c_str();
+	const char* short_exp = std::string(short_il).c_str();
+
+	SECTION("short string target")
+	{
+		isa::string str("short str");
+		std::string std_s("short_str");
+
+		SECTION("assign short initializer list")
+		{
+			str.assign(short_il);
+			CHECK_MY_STRING(str, short_il.size(), short_max, short_exp);
+
+			std_s.assign(short_il);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("assign long initializer list")
+		{
+			str.assign(long_il);
+			CHECK_MY_STRING(str, long_il.size(), short_max * 2, long_exp);
+
+			std_s.assign(long_il);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("long string target")
+	{
+		isa::string str("long string test");
+		size_t old_cap = str.capacity();
+		std::string std_s("long string test");
+
+		SECTION("assign short initializer list")
+		{
+			str.assign(short_il);
+			CHECK_MY_STRING(str, short_il.size(), old_cap, short_exp);
+
+			std_s.assign(short_il);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("assign long initializer list")
+		{
+			str.assign(long_il);
+			CHECK_MY_STRING(str, long_il.size(), old_cap * 2, long_exp);
+
+			std_s.assign(long_il);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+	}
+	SECTION("when provided initializer list is too long then throw 'std::length_error'")
+	{
+		// TODO: figure out how to test this case.
+	}
 }
