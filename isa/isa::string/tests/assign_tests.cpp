@@ -1,11 +1,13 @@
 #include <catch2/catch.hpp>
+#include <cstring>
+#include <string>
 #include "test_utils.h"
 
 #include "../string.h"
 
 // Unit tests for isa::string::assign functions
 // C++11
-// Assuming that all construtor tests are passed
+// Assuming that all construtor tests are passed (constructor_tests.cpp)
 
 #define tag "[assign][function]"
 

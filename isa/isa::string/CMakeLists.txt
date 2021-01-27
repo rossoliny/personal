@@ -26,9 +26,10 @@ set(STRING_SRC
 	)
 
 set(TEST_SRC 
-		tests/tests.cpp
+		tests/tests_driver.cpp
 		tests/constructor_tests.cpp
 		tests/assign_tests.cpp
+		tests/operator=_tests.cpp
 	)
 
 find_package(Catch2 REQUIRED)

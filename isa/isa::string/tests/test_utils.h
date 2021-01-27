@@ -1,5 +1,4 @@
 #pragma once
-#include <cstring>
 
 #ifndef CMP_MINE_WITH_STD
 #define CMP_MINE_WITH_STD(actual, expected)										\

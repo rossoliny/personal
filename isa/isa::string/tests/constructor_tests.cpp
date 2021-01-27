@@ -2,8 +2,6 @@
 #include <string>
 #include <cstring>
 
-// TODO: I MUST NOT CHANGE THE STRUCTURE ANYMORE
-
 // Unit tests for isa::string constructors
 // C++11
 
