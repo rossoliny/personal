@@ -157,7 +157,7 @@ namespace isa
 	// ASSIGNMENT OPERATORS
 	string& string::operator=(const string& other)
 	{
-		return assign(other);
+		return assign(other, 0, other._size);
 	}
 
 	string& string::operator=(string&& other) noexcept
@@ -171,18 +171,18 @@ namespace isa
 	}
 	string& string::operator=(std::initializer_list<char> ilist)
 	{
-		return assign(ilist);
+		return assign<const_pointer>(ilist.begin(), ilist.end());
 	}
 	string& string::operator=(const char ch)
 	{
-		if(_size > short_max)
-		{ 
-			delete[] _data;
+		if(!is_small())
+		{
+			space += _size - 1;
 		}
 		_size = 1;
-		_data = small_buff;
 		_data[0] = ch;
 		_data[_size] = '\0';
+
 		return *this;
 	}
 
