@@ -1,6 +1,8 @@
 #include <cstring>
-#include <stdexcept>
 #include <cmath>
+
+#include <stdexcept>
+#include <algorithm>
 #include "string.h"
 
 
@@ -26,7 +28,7 @@ namespace isa
 
 	bool string::is_small() const
 	{
-		return (intptr_t)_data == (intptr_t)small_buff && _size <= short_max;
+		return (intptr_t)_data == (intptr_t)small_buff /*&& _size <= short_max*/;
 	}
 
 	void string::verify_capacity(size_t new_sz)
@@ -64,20 +66,26 @@ namespace isa
 
 	void string::steal_from(string&& other) noexcept
 	{
-		if(other._size <= short_max)
+		if(other.is_small())
 		{
-			std::memcpy((void*)this, &other, sizeof(other));
-			_data = small_buff;
+			std::memcpy(_data, other._data, other._size + 1);
+			if(!is_small())
+			{
+				space += _size - other._size;	
+			}
 		}
-		else 
+		else
 		{
-			_data = other._data;
-			space = other.space;
-
-			other._data = other.small_buff;
-			other._data[0] = '\0';
-			other._size = 0;
+			bool _small = is_small();
+			std::swap(_data, other._data);
+			std::swap(space, other.space);
+			if(_small)
+			{
+				other._data = other.small_buff;
+			}
 		}
+		std::swap(_size, other._size);
+		other.clear();
 	}
 
 	// CONSTRUCTORS
@@ -136,6 +144,7 @@ namespace isa
 
 	string::string(string&& other) noexcept
 		: _size { other._size }
+		, _data { small_buff }
 	{
 		steal_from(std::move(other));
 	}
@@ -227,11 +236,12 @@ namespace isa
 
 	void string::clear(void) noexcept
 	{
-		char* ptr = _size <= short_max ? nullptr : _data;
-		delete[] ptr;
+		if(!is_small()) 
+		{
+			space += _size; 
+		}
 		_size = 0;
-		_data = small_buff;
-		std::memset(small_buff, 0, sizeof(small_buff));
+		_data[_size] = '\0';
 	}
 
 	bool string::empty(void) const noexcept
@@ -423,12 +433,8 @@ namespace isa
 		{
 			return *this;
 		}
-		if(_size > short_max)
-		{
-			delete[] _data;
-		}
-		_size = other._size;
 		steal_from(std::move(other));
+
 		return *this;
 	}
 

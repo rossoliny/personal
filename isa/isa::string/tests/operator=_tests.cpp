@@ -9,11 +9,14 @@
 
 const static size_t short_max = 15;
 
-const isa::string short_src("short str <= 15");
-const isa::string long_src("i am long string with length more than 15 chars");
+namespace src 
+{
+	const isa::string short_my("short str <= 15");
+	const isa::string long_my("i am long string with length more than 15 chars");
 
-const std::string short_std("short str <= 15");
-const std::string long_std("i am long string with length more than 15 chars");
+	const std::string short_std("short str <= 15");
+	const std::string long_std("i am long string with length more than 15 chars");
+}
 
 TEST_CASE("single character operator=", tag "[single character] [single char] [single] [char] [character]")
 {
@@ -42,20 +45,20 @@ TEST_CASE("copy operator=", tag "[copy]")
 
 	SECTION("must stay short")
 	{
-		str = short_src;
+		str = src::short_my;
 
-		CHECK_MY_STRING(str, short_src.size(), short_src.capacity(), short_src.c_str());
+		CHECK_MY_STRING(str, src::short_my.size(), src::short_my.capacity(), src::short_my.c_str());
 
-		std_s = short_std;
+		std_s = src::short_std;
 		CMP_MINE_WITH_STD(str, std_s);
 	}
 	SECTION("must increase capacity")
 	{
-		str = long_src;
+		str = src::long_my;
 
-		CHECK_MY_STRING(str, long_src.size(), long_src.capacity(), long_src.c_str());
+		CHECK_MY_STRING(str, src::long_my.size(), src::long_my.capacity(), src::long_my.c_str());
 
-		std_s = long_std;
+		std_s = src::long_std;
 		CMP_MINE_WITH_STD(str, std_s);
 	}
 }
@@ -86,9 +89,10 @@ TEST_CASE("move operator=", tag "[move]")
 			str = std::move(short_tmp);
 			
 			CHECK_MY_STRING(str, short_len, short_max, short_cstr);
-			CHECK_MY_STRING(short_tmp, short_len, short_max, short_cstr);
+			CHECK_MY_STRING(short_tmp, 0, short_max, "");
 
 			std_s = std::move(short_std_tmp);
+			CMP_MINE_WITH_STD(short_tmp, short_std_tmp);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 		SECTION("move assign long src")
@@ -99,6 +103,7 @@ TEST_CASE("move operator=", tag "[move]")
 			CHECK_MY_STRING(long_tmp, 0, short_max, "");
 
 			std_s = std::move(long_std_tmp);
+			CMP_MINE_WITH_STD(long_tmp, long_std_tmp);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 	}
@@ -112,11 +117,11 @@ TEST_CASE("move operator=", tag "[move]")
 		{
 			str = std::move(short_tmp);
 			
-			CHECK_MY_STRING(str, short_len, short_max, short_cstr);
-			CHECK_MY_STRING(short_tmp, short_len, short_max, short_cstr);
+			CHECK_MY_STRING(str, short_len, old_cap, short_cstr);
+			CHECK_MY_STRING(short_tmp, 0, short_max, "");
 
 			std_s = std::move(short_std_tmp);
-			CHECK_MY_STRING(short_std_tmp, 0, short_max, "");
+			CMP_MINE_WITH_STD(short_tmp, short_std_tmp);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 		SECTION("move assign long src")
@@ -124,9 +129,10 @@ TEST_CASE("move operator=", tag "[move]")
 			str = std::move(long_tmp);
 			
 			CHECK_MY_STRING(str, long_len, long_len, long_cstr);
-			CHECK_MY_STRING(long_tmp, 0, short_max, "");
+			CHECK_MY_STRING(long_tmp, 0, old_cap, "");
 
 			std_s = std::move(long_std_tmp);
+			CMP_MINE_WITH_STD(long_tmp, long_std_tmp);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 	}

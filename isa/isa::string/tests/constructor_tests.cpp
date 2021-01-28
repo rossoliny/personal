@@ -183,7 +183,7 @@ TEST_CASE("move constructor", tag "[move]")
 		isa::string str( std::move(short_str) );
 		
 		CHECK_MY_STRING(str, 15, short_max, "short string 15");
-		CHECK_MY_STRING(short_str, 15, short_max, "short string 15");
+		CHECK_MY_STRING(short_str, 0, short_max, "");
 
 		std::string std_str( std::move(std::string("short string 15")) );	
 		CMP_MINE_WITH_STD(str, std_str);

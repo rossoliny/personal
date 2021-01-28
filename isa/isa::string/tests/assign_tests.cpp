@@ -70,9 +70,10 @@ TEST_CASE("move assignment", tag "[move]")
 			str.assign(std::move(short_rval));
 			
 			CHECK_MY_STRING(str, short_len, short_max, short_cstr);
-			CHECK_MY_STRING(short_rval, short_len, short_max, short_cstr);
+			CHECK_MY_STRING(short_rval, 0, short_max, "");
 
 			std_s.assign(std::move(short_std_r));
+			CMP_MINE_WITH_STD(short_rval, short_std_r);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 		SECTION("steal from long string and become long, change src")
@@ -83,12 +84,38 @@ TEST_CASE("move assignment", tag "[move]")
 			CHECK_MY_STRING(long_rval, 0, short_max, "");
 
 			std_s.assign(std::move(long_std_r));
+			CMP_MINE_WITH_STD(long_rval, long_std_r);
 			CMP_MINE_WITH_STD(str, std_s);
 		}
 	}
 	SECTION("assign to long")
 	{
-		//TODO: 		
+		isa::string str("long destination string"); // sz = 23
+		size_t old_cap = str.capacity();
+		std::string std_s("long destination string");
+
+		SECTION("move assign short src")
+		{
+			str.assign(std::move(short_rval));
+			
+			CHECK_MY_STRING(str, short_len, old_cap, short_cstr);
+			CHECK_MY_STRING(short_rval, 0, short_max, "");
+
+			std_s.assign(std::move(short_std_r));
+			CMP_MINE_WITH_STD(short_rval, short_std_r);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
+		SECTION("move assign long src")
+		{
+			str.assign(std::move(long_rval));
+			
+			CHECK_MY_STRING(str, long_len, long_len, long_cstr);
+			CHECK_MY_STRING(long_rval, 0, old_cap, "");
+
+			std_s.assign(std::move(long_std_r));
+			CMP_MINE_WITH_STD(long_rval, long_std_r);
+			CMP_MINE_WITH_STD(str, std_s);
+		}
 	}
 }
 
