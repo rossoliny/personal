@@ -562,7 +562,7 @@ TEST_CASE("range assignment", tag "[range]")
 
 
 
-TEST_CASE("initializer list assignment", tag "[assign]")
+TEST_CASE("initializer list assignment", tag "[initializer list] [initializer]")
 {
 	std::initializer_list long_il = {'l', 'o', 'n', 'g', ' ', 'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'e', 'r', ' ', 'l', 'i', 's', 't'};
 	std::initializer_list short_il = {'s', 'h', 'o', 'r', 't', ' ', 'i', 'l'};
