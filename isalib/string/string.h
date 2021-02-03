@@ -48,7 +48,7 @@ namespace isa
 		void check_new_size(size_t new_sz) const;
 		void check_index(size_t index, size_t size) const;
 		bool is_small() const;
-		void verify_capacity(size_t new_sz);
+		void verify_capacity(size_t new_sz, bool copy = false);
 		void copy_from(const string& other);
 		void steal_from(string&& other) noexcept;
 

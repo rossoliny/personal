@@ -31,16 +31,24 @@ namespace isa
 		return (intptr_t)_data == (intptr_t)small_buff /*&& _size <= short_max*/;
 	}
 
-	void string::verify_capacity(size_t new_sz)
+	void string::verify_capacity(size_t new_sz, bool copy)
 	{
 		if(new_sz > capacity())
 		{
 			size_t new_cap = capacity() * 2;
 			new_cap = new_sz > new_cap ? new_sz : new_cap;
 
-			if(!is_small()) { delete[] _data; }
+			char* new_mem = new char[new_cap + 1];
+			if(copy) 
+			{
+				std::strcpy(new_mem, _data);
+			}
 
-			_data = new char[new_cap + 1];
+			if(!is_small()) {
+				delete[] _data; 
+			}
+
+			_data = new_mem;
 			space = new_cap - new_sz;
 		}
 		else if(!is_small())
@@ -214,13 +222,16 @@ namespace isa
 
 	void string::resize(size_t new_sz)
 	{
-		//TODO: impl
-		return;
+		resize(new_sz, '\0');
 	}
+
 	void string::resize(size_t new_sz, char ch)
 	{
-		//TODO: imp
-		return;
+		check_new_size(new_sz);
+		verify_capacity(new_sz, true);
+		memset(_data + _size, ch, ((size_t)(new_sz > _size)) * (new_sz - _size));
+		_size = new_sz;
+		_data[_size] = '\0';
 	}
 
 	size_t string::capacity(void) const noexcept
@@ -878,28 +889,13 @@ namespace isa
 	// TODO: add remaining iterators
 
 
-
-
-	// c++20 and higher only
-	/*
-	bool starts_with(const isa::string_view sv) const noexcept;
-	bool starts_with(const char ch) const noexcept;
-	bool starts_with(const char* str) const;
-
-	bool ends_with(const isa::string_view sv) const noexcept;
-	bool ends_with(char ch) const noexcept;
-	bool ends_with(const char* str) const;
-
-	bool contains(const isa::string_view sv) const noexcept;
-	bool contains(const char c) const noexcept;
-	bool contains(const char* str) const;
-	*/
-
 	// DESTRUCTOR
 	string::~string(void)
 	{
-		//TODO: impl
-		return;
+		if(!is_small())
+		{
+			delete[] _data;
+		}
 	}
 
 };
