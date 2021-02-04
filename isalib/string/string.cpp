@@ -242,6 +242,11 @@ namespace isa
 	void string::reserve(size_t n)
 	{
 		check_new_size(n);
+		if(n == 0)
+		{
+			shrink_to_fit();
+			return;
+		}
 		verify_capacity(n, true);
 		if(!is_small())
 		{
@@ -266,8 +271,12 @@ namespace isa
 
 	void string::shrink_to_fit(void)
 	{
-		//TODO: impl
-		return;
+		if(is_small() || space == 0)
+			return;
+
+		char* new_mem = new char[_size + 1];
+		std::strcpy(new_mem, _data);
+		delete[] _data;
 	}
 
 	// ELEMET ACCESS FUNCTIONS
