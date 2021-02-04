@@ -241,8 +241,12 @@ namespace isa
 
 	void string::reserve(size_t n)
 	{
-		// TODO: impl
-		return;
+		check_new_size(n);
+		verify_capacity(n, true);
+		if(!is_small())
+		{
+			space += n - _size;
+		}
 	}
 
 	void string::clear(void) noexcept

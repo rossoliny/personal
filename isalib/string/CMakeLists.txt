@@ -31,6 +31,7 @@ set(TEST_SRC
 		tests/assign_tests.cpp
 		tests/operator=_tests.cpp
 		tests/resize_tests.cpp
+		tests/reserve_tests.cpp
 	)
 
 find_package(Catch2 REQUIRED)
