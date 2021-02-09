@@ -321,6 +321,99 @@ namespace isa
 
 
 	// MODIFIERS
+	string& string::assign(string&& other) noexcept // move assignment
+	{
+		if(this == &other)
+		{
+			return *this;
+		}
+		steal_from(std::move(other));
+
+		return *this;
+	}
+
+	string& string::assign(const string& other)
+	{
+		if(this == &other)
+		{
+			return *this;
+		}
+
+		return assign(other, 0, npos);
+	}
+
+	string& string::assign(const string& other, size_t start, size_t len)
+	{
+		check_index(start, other._size);
+
+		size_t new_sz = other._size - start < len ? other._size - start : len;
+		// other can never be longer than max_size();
+		//check_new_capacity(new_sz);
+		verify_capacity(new_sz);
+
+		memmove(_data, other._data + start, new_sz);
+		_data[new_sz] = '\0';
+		_size = new_sz;
+
+		return *this;
+	}
+
+	string& string::assign(const char* cstr)
+	{
+		if(_data == cstr)
+		{
+			return *this;
+		}
+		size_t new_sz = strlen(cstr);
+		// c-string should not be longer than max_size()
+		//check_new_size(new_sz);
+		verify_capacity(new_sz);
+		strcpy(_data, cstr);
+		_size = new_sz;
+
+		return *this;	
+	}
+
+	string& string::assign(const char* buff, size_t count)
+	{
+		if(_data == buff && _size == count)
+		{
+			return *this;
+		}
+		check_new_size(count);
+		verify_capacity(count);
+		memmove(_data, buff, count);
+		_data[count] = '\0';
+		_size = count;
+
+		return *this;
+	}
+
+	string& string::assign(size_t count, char ch)
+	{
+		check_new_size(count);
+		verify_capacity(count);
+		memset(_data, ch, count);
+		_data[count] = '\0';
+		_size = count;
+
+		return *this;
+	}
+
+	string& string::assign(std::initializer_list<char> ilist)
+	{
+		return assign(ilist.begin(), ilist.end());
+	}
+
+	/************************************************************************
+	 *	template<class InputIterator>										*
+	 *	string& string::assign(InputIterator first, InputIterator last)		*
+	 *	{																	*	
+	 * 		Implementation in file string.hpp								*
+	 *	}																	*
+	 ************************************************************************/
+
+
 	string& string::operator+=(char ch)
 	{
 		if(_size == short_max)
@@ -419,7 +512,12 @@ namespace isa
 	}
 	string& string::append(const string& other, size_t strart, size_t len) // substring
 	{
-		// TODO: impl
+		size_t new_sz = (other._size - start < len ? other._size - start : len) + _size;
+		check_new_size(new_sz);
+		verify_capacity(new_sz);
+		_memmove(_data, other._data + start, new_sz);
+		_size = new_sz;
+
 		return *this;
 	}
 	string& string::append(const char* cstr) 
@@ -451,97 +549,6 @@ namespace isa
 	}
 	*/
 
-	string& string::assign(string&& other) noexcept // move assignment
-	{
-		if(this == &other)
-		{
-			return *this;
-		}
-		steal_from(std::move(other));
-
-		return *this;
-	}
-
-	string& string::assign(const string& other)
-	{
-		if(this == &other)
-		{
-			return *this;
-		}
-
-		return assign(other, 0, npos);
-	}
-
-	string& string::assign(const string& other, size_t start, size_t len)
-	{
-		check_index(start, other._size);
-
-		size_t new_sz = other._size - start < len ? other._size - start : len;
-		// other can never be longer than max_size();
-		//check_new_capacity(new_sz);
-		verify_capacity(new_sz);
-
-		memmove(_data, other._data + start, new_sz);
-		_data[new_sz] = '\0';
-		_size = new_sz;
-
-		return *this;
-	}
-
-	string& string::assign(const char* cstr)
-	{
-		if(_data == cstr)
-		{
-			return *this;
-		}
-		size_t new_sz = strlen(cstr);
-		// c-string should not be longer than max_size()
-		//check_new_size(new_sz);
-		verify_capacity(new_sz);
-		strcpy(_data, cstr);
-		_size = new_sz;
-
-		return *this;	
-	}
-
-	string& string::assign(const char* buff, size_t count)
-	{
-		if(_data == buff && _size == count)
-		{
-			return *this;
-		}
-		check_new_size(count);
-		verify_capacity(count);
-		memmove(_data, buff, count);
-		_data[count] = '\0';
-		_size = count;
-
-		return *this;
-	}
-
-	string& string::assign(size_t count, char ch)
-	{
-		check_new_size(count);
-		verify_capacity(count);
-		memset(_data, ch, count);
-		_data[count] = '\0';
-		_size = count;
-
-		return *this;
-	}
-
-	string& string::assign(std::initializer_list<char> ilist)
-	{
-		return assign(ilist.begin(), ilist.end());
-	}
-
-	/************************************************************************
-	 *	template<class InputIterator>										*
-	 *	string& string::assign(InputIterator first, InputIterator last)		*
-	 *	{																	*	
-	 * 		Implementation in file string.hpp								*
-	 *	}																	*
-	 ************************************************************************/
 
 	string& string::insert(size_t pos, const string& str)
 	{
