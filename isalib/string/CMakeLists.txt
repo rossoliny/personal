@@ -33,6 +33,7 @@ set(TEST_SRC
 		tests/resize_tests.cpp
 		tests/reserve_tests.cpp
 		tests/shrink_to_fit_tests.cpp
+		tests/append_tests.cpp
 	)
 
 find_package(Catch2 REQUIRED)

@@ -507,47 +507,65 @@ namespace isa
 
 	string& string::append(const string& other)
 	{
-		// TODO: impl
-		return *this;
+		return append(other, 0, npos);
 	}
-	string& string::append(const string& other, size_t strart, size_t len) // substring
+
+	string& string::append(const string& other, size_t start, size_t len) // substring
 	{
-		size_t new_sz = (other._size - start < len ? other._size - start : len) + _size;
+		len = (other._size - start < len ? other._size - start : len);
+		size_t new_sz = len + _size;
 		check_new_size(new_sz);
 		verify_capacity(new_sz);
-		_memmove(_data, other._data + start, new_sz);
+		std::memmove(_data + _size, other._data + start, len);
 		_size = new_sz;
+		_data[_size] = '\0';
 
 		return *this;
 	}
+
 	string& string::append(const char* cstr) 
 	{
-		// TODO: impl
+		size_t len = std::strlen(cstr);
+		return append(cstr, len);
+
 		return *this;
 	}
+
 	string& string::append(const char* buff, size_t count) // from buffer
 	{
-		// TODO: impl
+		check_new_size(_size + count);
+		verify_capacity(_size + count);
+		std::memmove(_data + _size, buff, count);
+		_size += count;
+		_data[_size] = '\0';
+
 		return *this;
 	}
+
 	string& string::append(size_t count, char ch) // fill
 	{
-		// TODO: impl
+		check_new_size(_size + count);
+		verify_capacity(_size + count);
+		std::memset(_data + _size, ch, count);
+		_size += count;
+		_data[_size] = '\0';
+
 		return *this;
 	}
+
 	string& string::append(std::initializer_list<char> ilist) 
 	{
 		// TODO; impl
 		return *this;
 	}
-	/*
-	template<class InputIterator>
-	string& string::append(InputIterator first, InputIterator last)
-	{
-		// TODO: impl
-		return *this;
-	}
-	*/
+
+	/************************************************************************
+	 *	template<class InputIterator>										*
+	 *	string& string::append(InputIterator first, InputIterator last)		*
+	 *	{																	*
+	 * 		Implementation in file string.hpp								*
+	 *	}																	*
+	 ************************************************************************/
 
 
 	string& string::insert(size_t pos, const string& str)

@@ -31,5 +31,19 @@ namespace isa
 
 		return *this;
 	}
+
+	template<class InputIterator>										
+	string& string::append(InputIterator first, InputIterator last)		
+	{																	
+		size_t len = static_cast<size_t> (std::distance(first, last));
+		check_new_size(len + _size);
+		verify_capacity(len + _size);
+
+		std::copy(static_cast<const value_type*> (first), static_cast<const value_type*> (last), _data + _size);
+		_size += len;
+		_data[_size] = '\0';
+
+		return *this;
+	}																	
 }
 

@@ -122,10 +122,8 @@ namespace isa
 		string& append(const char* buff, size_t count); // from buffer
 		string& append(size_t count, char ch); // fill
 		string& append(std::initializer_list<char> ilist); 
-		/*
 		template<class InputIterator>
 		string& append(InputIterator first, InputIterator last);
-		*/
 
 		string& assign(const string& other);
 		string& assign(const string& other, size_t start, size_t len);
