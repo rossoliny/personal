@@ -61,7 +61,7 @@ int main()
 	while(K--)
 	{
 		cin >> l >> r;
-		cout << sum_st(st, 0, 0, N-1, l, r) << ' ';
+		cout << sum_st(st, 0, 0, N-1, l-1, r-1) << ' ';
 	}
 	cout << '\n';
 }
