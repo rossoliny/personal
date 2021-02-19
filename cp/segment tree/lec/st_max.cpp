@@ -5,6 +5,7 @@ using namespace std;
 
 const long ll_min = (unsigned long) -1/2 + 1;
 
+
 void build_st(long* dst, long* src, long root, long l, long r)
 {
 	if(l == r)
@@ -20,7 +21,7 @@ void build_st(long* dst, long* src, long root, long l, long r)
 
 	long l_max = src[ dst[root * 2 + 1] ];
 	long r_max = src[ dst[root * 2 + 2] ];
-	dst[root] = l_max > r_max ? dst[root*2+1] : dst[root*2+2];
+	dst[root] = l_max >= r_max ? dst[root*2+1] : dst[root*2+2];
 }
 
 long max_st(long* stree, long* src, long curr, long L, long R, long l, long r)
@@ -49,7 +50,7 @@ long max_st(long* stree, long* src, long curr, long L, long R, long l, long r)
 		return l_max_idx;
 	}
 
-	return src[l_max_idx] > src[r_max_idx] ? l_max_idx : r_max_idx;
+	return src[l_max_idx] >= src[r_max_idx] ? l_max_idx : r_max_idx;
 }
 
 int main(int argc, char** argv)
