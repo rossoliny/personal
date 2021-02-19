@@ -5,11 +5,6 @@ using namespace std;
 
 const long ll_min = (unsigned long) -1/2 + 1;
 
-long fmax(long a, long b)
-{
-	return a > b ? a : b;
-}
-
 void build_st(long* dst, long* src, long root, long l, long r)
 {
 	if(l == r)
@@ -86,8 +81,9 @@ int main(int argc, char** argv)
 	{
 		cin >> l >> r;
 		long res = max_st(segtree, inp, 0, 0, N-1, l-1, r-1); 
-		cout << inp[res] << ' ' << ++res << '\n';
+		cout << res << ' ';
 	}
+	cout << '\n';
 	
 	return 0;
 }
