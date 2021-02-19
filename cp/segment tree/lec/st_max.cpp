@@ -57,44 +57,34 @@ int main(int argc, char** argv)
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 
-	long N = 100000;
-	long inp[N + 1];
-	long segtree[4 * N];
 
 	long max = ll_min;
 //	cout << (unsigned long) -1/2 << endl;
 
+	long N = 100000;
 	cin >> N;
-	inp[N] = -1;
+	long inp[N];
+	long segtree[4 * N];
+
 	for(size_t i = 0; i < N; ++i)
 	{
 		cin >> inp[i];
-		max = inp[i] > max ? inp[i] : max;
 	}
 
-	segtree[0] = max;
 	build_st(segtree, inp, 0, 0, N-1);
 
-	long K, l, r, i;
+	long K, l, r;
 	cin >> K;
 	while(K--)
 	{
 		cin >> l >> r;
 		long res = max_st(segtree, inp, 0, 0, N-1, l-1, r-1); 
-		cout << res << ' ';
+		cout << res+1 << ' ';
 	}
 	cout << '\n';
 	
 	return 0;
 }
-
-
-
-
-
-
-
-
 
 
 
