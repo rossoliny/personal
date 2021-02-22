@@ -5,10 +5,6 @@ using namespace std;
 
 const long ll_min = (unsigned long) -1/2 + 1;
 
-long fmax(long a, long b)
-{
-	return a > b ? a : b;
-}
 
 void build_st(long* dst, long* src, long root, long l, long r)
 {
@@ -25,7 +21,7 @@ void build_st(long* dst, long* src, long root, long l, long r)
 
 	long l_max = src[ dst[root * 2 + 1] ];
 	long r_max = src[ dst[root * 2 + 2] ];
-	dst[root] = l_max > r_max ? dst[root*2+1] : dst[root*2+2];
+	dst[root] = l_max >= r_max ? dst[root*2+1] : dst[root*2+2];
 }
 
 long max_st(long* stree, long* src, long curr, long L, long R, long l, long r)
@@ -54,7 +50,7 @@ long max_st(long* stree, long* src, long curr, long L, long R, long l, long r)
 		return l_max_idx;
 	}
 
-	return src[l_max_idx] > src[r_max_idx] ? l_max_idx : r_max_idx;
+	return src[l_max_idx] >= src[r_max_idx] ? l_max_idx : r_max_idx;
 }
 
 int main(int argc, char** argv)
@@ -62,43 +58,34 @@ int main(int argc, char** argv)
 	ios_base::sync_with_stdio(0);
 	cin.tie(0);
 
-	long N = 100000;
-	long inp[N + 1];
-	long segtree[4 * N];
 
 	long max = ll_min;
 //	cout << (unsigned long) -1/2 << endl;
 
+	long N = 100000;
 	cin >> N;
-	inp[N] = -1;
+	long inp[N];
+	long segtree[4 * N];
+
 	for(size_t i = 0; i < N; ++i)
 	{
 		cin >> inp[i];
-		max = inp[i] > max ? inp[i] : max;
 	}
 
-	segtree[0] = max;
 	build_st(segtree, inp, 0, 0, N-1);
 
-	long K, l, r, i;
+	long K, l, r;
 	cin >> K;
 	while(K--)
 	{
 		cin >> l >> r;
 		long res = max_st(segtree, inp, 0, 0, N-1, l-1, r-1); 
-		cout << inp[res] << ' ' << ++res << '\n';
+		cout << res+1 << ' ';
 	}
+	cout << '\n';
 	
 	return 0;
 }
-
-
-
-
-
-
-
-
 
 
 
