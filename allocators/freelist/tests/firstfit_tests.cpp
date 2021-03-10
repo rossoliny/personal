@@ -1,6 +1,6 @@
 #define DEBUG
 #define FIRSTFIT
-#include "../freelist_allocator.h"
+#include "../reusing_allocator.h"
 #include <cassert>
 #include <cstdio>
 
@@ -8,7 +8,7 @@ using word_t = std::intptr_t;
 
 int main()
 {
-	isa::freelist_allocator a;
+	isa::reusing_allocator a;
 
 	auto p1 = a.alloc(3);
 	auto p1b = a.get_header(p1);

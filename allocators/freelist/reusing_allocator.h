@@ -1,11 +1,11 @@
 #include <unistd.h>
 #include <cstdint>
 #include <utility>
-
+#include <list>
 
 namespace isa
 {
-	class freelist_allocator
+	class reusing_allocator
 	{
 		using word_t = std::intptr_t;
 
@@ -14,6 +14,7 @@ namespace isa
 			bool used;
 			size_t sz;
 			block* next;
+			block* prev;
 			word_t data[1];
 		};
 
@@ -65,7 +66,9 @@ namespace isa
 			brk(heap_start);
 			heap_start = nullptr;
 			top = nullptr;
+		#if defined(NEXTFIT) || defined(BESTFIT)
 			search_start = nullptr;
+		#endif
 		}
 
 	#ifdef SPLIT_ALLOC
@@ -76,6 +79,7 @@ namespace isa
 
 			new_blk->next = blk->next;
 			blk->next = new_blk;
+			new_blk->prev = blk;
 
 			return blk;
 		}
@@ -103,20 +107,24 @@ namespace isa
 		bool can_merge(block* blk)
 		{
 			// TODO: can try to modify into doubly linked list and merge with prev blocks;
-			return blk->next && !blk->next->used;
+			return blk->next && !blk->next->used || blk->prev && !blk->prev->used;
 		}
 
+		// must set used to false before call'
 		block* merge(block* blk)
 		{
 			block* next = blk->next;
-			blk->next = next->next;
-			blk->sz += alloc_size(next->sz);
 			
-			/*
-			next->next = nullptr;
-			next->sz = 0;
-			next->used = false;
-			*/
+			if(!blk->prev->used)
+			{
+				blk = merge(blk->prev);
+			}
+
+			if(!blk->next->used)
+			{
+				blk->next = next->next;
+				blk->sz += alloc_size(next->sz);
+			}
 
 			return blk;
 		}
@@ -139,14 +147,17 @@ namespace isa
 		{
 			block* curr = heap_start;
 
-			while(curr != nullptr)
+			if(curr == nullptr)
+				return nullptr;
+
+			do
 			{
 				if(!curr->used && curr->sz >= n)
 				{
 					return curr;
 				}
 				curr = curr->next;
-			}
+			} while(curr != heap_start);
 
 			return nullptr;
 		}
@@ -167,8 +178,6 @@ namespace isa
 					return curr;
 				}
 				curr = curr->next;
-				if(curr == nullptr)
-					curr = heap_start;
 			} while(curr != search_start);
 
 			return nullptr;
@@ -199,8 +208,6 @@ namespace isa
 				#endif
 				}
 				curr = curr->next;
-				if(curr == nullptr)
-					curr = heap_start;
 			} while(curr != search_start);
 
 			#ifndef SPLIT_ALLOC
@@ -227,7 +234,7 @@ namespace isa
 
 	public:
 
-		freelist_allocator() 
+		reusing_allocator() 
 		{
 			init();
 		}
@@ -248,16 +255,21 @@ namespace isa
 			if(heap_start == nullptr) // very first allocation
 			{
 				heap_start = block;
+				heap_start->next = heap_start->prev = block;
+				#if defined(NEXTFIT) || defined(BESTFIT)
 				search_start = heap_start;
+				#endif
 			}
 
 			if(top != nullptr) // any but not first allocation
 			{
 				top->next = block;
+				block->prev = top;
 			}
 
 			// last allocated block is head.
 			top = block;
+			top->next = heap_start;
 
 			// return pointer to memory allocated for user;
 			return block->data;
@@ -268,6 +280,7 @@ namespace isa
 			#ifdef MERGE_ALLOC
 			if(can_merge(block))
 			{
+ 		 		block->used = false;
 				block = merge(block);
 			}
 			#endif
@@ -275,6 +288,6 @@ namespace isa
 		}
 	};
 
-	using falloc = freelist_allocator;
+	using ralloc = reusing_allocator;
 
 }

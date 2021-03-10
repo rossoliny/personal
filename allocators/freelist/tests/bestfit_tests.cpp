@@ -3,7 +3,7 @@
 #define SPLIT_ALLOC
 #define MERGE_ALLOC
 
-#include "../freelist_allocator.h"
+#include "../reusing_allocator.h"
 #include <cassert>
 #include <cstdio>
 
@@ -12,7 +12,7 @@ using word_t = std::intptr_t;
 int main()
 {
 	// general tests
-	isa::freelist_allocator a;
+	isa::reusing_allocator a;
 
 	auto p1 = a.alloc(3);
 	auto p1b = a.get_header(p1);
@@ -31,7 +31,7 @@ int main()
 	assert(p3b == p2b); // reused
 
 	// nextfit specific
-	isa::freelist_allocator a2;
+	isa::reusing_allocator a2;
 	 
 	a2.alloc(8);
 	a2.alloc(8);
@@ -52,7 +52,7 @@ int main()
 	assert(o4 == o2); // reused
 
 	// bestfit specific
-	isa::freelist_allocator a3;
+	isa::reusing_allocator a3;
 	a3.alloc(8);
 
 	auto z1 = a3.alloc(64);

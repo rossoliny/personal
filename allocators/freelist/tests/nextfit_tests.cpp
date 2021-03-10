@@ -1,7 +1,7 @@
 #define DEBUG
 #define NEXTFIT
 
-#include "../freelist_allocator.h"
+#include "../reusing_allocator.h"
 #include <cassert>
 #include <cstdio>
 
@@ -9,7 +9,7 @@ using word_t = std::intptr_t;
 
 int main()
 {
-	isa::freelist_allocator a;
+	isa::reusing_allocator a;
 
 	auto p1 = a.alloc(3);
 	auto p1b = a.get_header(p1);
@@ -27,7 +27,7 @@ int main()
 	assert(p3b->sz == 8);
 	assert(p3b == p2b);
 
-	isa::freelist_allocator a2;
+	isa::reusing_allocator a2;
 	 
 	a2.alloc(8);
 	a2.alloc(8);
