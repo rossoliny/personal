@@ -8,3 +8,4 @@
 !*.hpp
 !CMakeLists.txt
 build/
+cmake-build-debug
