@@ -71,12 +71,13 @@ namespace isa
 	#ifdef SPLIT_ALLOC
 		block* split(block* blk, size_t n)
 		{
-			blk->sz -= alloc_size(n);
-			block* new_blk = (block*)	((char*)blk + sizeof(block) + blk->sz - sizeof(word_t));
+			block* new_blk = (block*)	((char*)blk + alloc_size(n));
+			new_blk->sz = blk->sz - alloc_size(n);
+
 			new_blk->next = blk->next;
 			blk->next = new_blk;
 
-			return new_blk;
+			return blk;
 		}
 
 		inline bool can_split(block* blk, size_t n) const noexcept
@@ -97,6 +98,29 @@ namespace isa
 
 			return blk;
 		}
+	#endif
+	#ifdef MERGE_ALLOC
+		bool can_merge(block* blk)
+		{
+			// TODO: can try to modify into doubly linked list and merge with prev blocks;
+			return blk->next && !blk->next->used;
+		}
+
+		block* merge(block* blk)
+		{
+			block* next = blk->next;
+			blk->next = next->next;
+			blk->sz += alloc_size(next->sz);
+			
+			/*
+			next->next = nullptr;
+			next->sz = 0;
+			next->used = false;
+			*/
+
+			return blk;
+		}
+
 	#endif
 
 	#ifdef DEBUG
@@ -241,6 +265,12 @@ namespace isa
 
 		void free(word_t* data) {
  			block* block = get_header(data);
+			#ifdef MERGE_ALLOC
+			if(can_merge(block))
+			{
+				block = merge(block);
+			}
+			#endif
  		 	block->used = false;
 		}
 	};

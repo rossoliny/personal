@@ -1,6 +1,7 @@
 #define DEBUG
 #define BESTFIT
 #define SPLIT_ALLOC
+#define MERGE_ALLOC
 
 #include "../freelist_allocator.h"
 #include <cassert>
@@ -55,19 +56,17 @@ int main()
 	a3.alloc(8);
 
 	auto z1 = a3.alloc(64);
-	a3.alloc(8);
 	auto z2 = a3.alloc(16);
+	a3.alloc(8);
 
 	a3.free(z2);
-
-	a3.free(z1);
+	a3.free(z1); // 64 and 16 must merge into 104 
 
 	auto z3 = a3.alloc(16);
-	auto z1b = a3.get_header(z1);
-	assert((char*) a3.get_header(z3) == (char*)z1b + sizeof(*z1b) + z1b->sz - sizeof(*z1)); // split 64-byte block
+	assert(a3.get_header(z3) == a3.get_header(z1)); // split 104-byte block. new 16 byte block is taken from begining of 104 block.
 
-	z3 = a3.alloc(16); // not enough mem to split, but z2 is free
-	assert(a3.get_header(z3) == a3.get_header(z2));
+	auto z4 = a3.alloc(16); // split 64-byte block z1
+	assert((char*)a3.get_header(z4) == (char*) (z3 + 2)); // z4 block start right where z3 data ends;
 
 	std::puts("\nAll assertions passed!\n");
 }
