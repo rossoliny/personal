@@ -17,7 +17,7 @@ namespace isa
 			block* prev_free;
 			size_t sz;
 			bool used;
-			word_t data[1];
+			word_t memory[1];
 		};
 
 
@@ -31,9 +31,9 @@ namespace isa
 	#endif
 		block* search_start = nullptr;
 
-		inline static block* get_header(word_t* data) noexcept
+		inline static block* get_header(word_t* memory) noexcept
 		{
-			return (block*) ( (char*)data - sizeof(block) + sizeof(std::declval<block>().data));
+			return (block*) ( (char*)memory - sizeof(block) + sizeof(std::declval<block>().memory));
 		}
 	#ifdef DEBUG
 	private:
@@ -47,7 +47,7 @@ namespace isa
 		inline static size_t alloc_size(size_t n) noexcept
 		{
 			// block already contains 1 word inside it, so we allocate 1 block + n - word bytes;
-			return sizeof(block) + n - sizeof(std::declval<block>().data);
+			return sizeof(block) + n - sizeof(std::declval<block>().memory);
 		}
 
 		static block* request_from_os(size_t n) noexcept
@@ -188,7 +188,7 @@ namespace isa
 
 			if(block* blk = find_free_block(n))
 			{
-				return blk->data;
+				return blk->memory;
 			}
 			
 			block* block = request_from_os(n);
@@ -200,7 +200,7 @@ namespace isa
 				heap_head = block;
 				heap_head->prev = heap_head->next = block;
 			}
-			if(heap_tail != nullptr)
+			if(heap_tail != nullptr) // any but not first
 			{
 				heap_tail->next = block;
 				block->prev = heap_tail;
@@ -211,11 +211,11 @@ namespace isa
 			heap_head->prev = heap_tail;
 
 			// return pointer to memory allocated for user;
-			return block->data;
+			return block->memory;
 		}
 
-		void free(word_t* data) {
- 			block* block = get_header(data);
+		void free(word_t* memory) {
+ 			block* block = get_header(memory);
 			block->used = false;
 			add_free_block(block);
 			try_merge(block);
