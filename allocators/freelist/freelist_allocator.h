@@ -9,13 +9,6 @@ namespace isa
 	{
 		using word_t = std::intptr_t;
 
-		struct free_block
-		{
-			free_block* next;
-			free_block* prev;
-			size_t sz;
-		};
-
 		struct block
 		{
 			block* next;
@@ -38,7 +31,7 @@ namespace isa
 	#endif
 		block* search_start = nullptr;
 
-		inline block* get_header(word_t* data) const noexcept
+		inline static block* get_header(word_t* data) noexcept
 		{
 			return (block*) ( (char*)data - sizeof(block) + sizeof(std::declval<block>().data));
 		}
@@ -46,18 +39,18 @@ namespace isa
 	private:
 	#endif
 
-		inline size_t align(size_t n) const noexcept
+		inline static size_t align(size_t n) noexcept
 		{
 			return (n + sizeof(word_t) - 1) & ~(sizeof(word_t) - 1);
 		}
 
-		inline size_t alloc_size(size_t n) const noexcept
+		inline static size_t alloc_size(size_t n) noexcept
 		{
 			// block already contains 1 word inside it, so we allocate 1 block + n - word bytes;
 			return sizeof(block) + n - sizeof(std::declval<block>().data);
 		}
 
-		block* request_from_os(size_t n) const noexcept
+		static block* request_from_os(size_t n) noexcept
 		{
 			block* blk = (block*) sbrk(0); // get current brk pointer position
 
@@ -68,12 +61,12 @@ namespace isa
 			return blk;
 		}
 
-		inline bool can_split(block* blk, size_t n) const noexcept
+		inline static bool can_split(block* blk, size_t n) noexcept
 		{
 			return (blk->sz) > alloc_size(n); 
 		}
 
-		block* split(block* blk, size_t n) 
+		static block* split(block* blk, size_t n) noexcept
 		{
 			if(can_split(blk, n))
 			{
@@ -106,12 +99,7 @@ namespace isa
 			return blk != heap_head;
 		}
 
-		void merge_free(block* blk)
-		{
-			
-		}
-
-		block* try_merge(block* blk)
+		block* try_merge(block* blk) noexcept
 		{
 			block* next = blk->next;
 			block* next_free = blk->next_free;
@@ -135,7 +123,7 @@ namespace isa
 			return blk;
 		}
 
-		void remove_free_block(block* blk)
+		void remove_free_block(block* blk) noexcept
 		{
 			if(blk == free_tail && free_tail == free_head)
 			{
@@ -152,7 +140,7 @@ namespace isa
 			blk->used = true;
 		}
 
-		void add_free_block(block* blk)
+		void add_free_block(block* blk) noexcept
 		{
 			if(free_head == nullptr)
 			{
@@ -171,7 +159,7 @@ namespace isa
 			blk->used = false;
 		}
 
-		block* find_block(size_t n)
+		block* find_free_block(size_t n)
 		{
 			block* curr = search_start;
 
@@ -192,35 +180,13 @@ namespace isa
 			return nullptr;
 		}
 
-		void init()
-		{
-			reset_brk();
-		}
-
-		void reset_brk() noexcept
-		{
-			if(heap_head == nullptr)
-				return;
-
-			brk(heap_head);
-			heap_head = nullptr;
-			heap_tail = nullptr;
-			free_head = nullptr;
-			free_tail = nullptr;
-		}
-
 	public:
-
-		freelist_allocator() 
-		{
-			init();
-		}
 
 		word_t* alloc(size_t n) noexcept
 		{
 			n = align(n);
 
-			if(block* blk = find_block(n))
+			if(block* blk = find_free_block(n))
 			{
 				return blk->data;
 			}

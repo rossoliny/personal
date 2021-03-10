@@ -5,10 +5,11 @@
 #include <cstdio>
 
 using word_t = std::intptr_t;
+using isa::freelist_allocator;
 
 int main()
 {
-	isa::freelist_allocator a;
+	isa::falloc a;
 
 	auto p1 = a.alloc(3);
 	auto p1b = a.get_header(p1);
