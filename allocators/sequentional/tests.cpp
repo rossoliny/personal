@@ -17,5 +17,7 @@ int main()
   	auto p2b = sa.get_header(p2);
   	assert(p2b->sz == 8);
 
+	sa.free(p2);
+	assert(p2b->used == false) ;
 	std::puts("\nAll assertions passed!\n");
 }
