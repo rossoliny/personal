@@ -5,22 +5,22 @@
 namespace isa
 {
 
-	template<typename T, typename Alloc = std::allocator<T>>
-	class list
-	{
+    template<typename T, typename Alloc = std::allocator<T>>
+    class list
+    {
         class list_iterator;
         class const_list_iterator;
 
-		struct node
-		{
-			node* next;
-			node* prev;
-			T* content;
-			
-			friend class list;
+        struct node
+        {
+            node* next;
+            node* prev;
+            T* content;
+
+            friend class list;
         };
 
-	public:
+    public:
         using value_type = T;
         using allocator_type = Alloc;
         using reference = T&;
@@ -34,7 +34,7 @@ namespace isa
         using difference_type = std::ptrdiff_t;
         using size_type = std::size_t;
 
-	private:
+    private:
         class list_iterator
         {
         public:
@@ -161,7 +161,7 @@ namespace isa
             const pointer ptr;
         };
 
-	public:
+    public:
         list_iterator begin() const
         {
             return list_iterator(head->content);
@@ -205,22 +205,22 @@ namespace isa
 
 
         // List
-		list() 
-			: head(nullptr)
-			, tail(nullptr)
-		{
+        list()
+                : head(nullptr)
+                , tail(nullptr)
+        {
 
-		}
+        }
 
-		list_iterator insert(list_iterator& pos, value_type& val)
+        list_iterator insert(list_iterator& pos, value_type& val)
         {
 
         }
 
 
-	private:
-		node* head;
-		node* tail;
-	};
+    private:
+        node* head;
+        node* tail;
+    };
 
 }
