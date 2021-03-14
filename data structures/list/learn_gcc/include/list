@@ -1,0 +1,11 @@
+//
+// Created by Isa on 3/13/21.
+//
+
+#ifndef ISA_LIST
+#define ISA_LIST
+
+#include "stl_list.h"
+#include "list.tcc"
+
+#endif //ISA_LIST
