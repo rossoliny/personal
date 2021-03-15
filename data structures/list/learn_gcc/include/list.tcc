@@ -8,6 +8,9 @@
 
 namespace gcc
 {
+    // O(N)
+    // calls allocator_traits::destroy on each element
+    // calls allocator_traits::deallocate on each node.
     template<typename Tp, typename Alloc>
     void list_base<Tp, Alloc>::m_clear() noexcept
     {
@@ -16,13 +19,16 @@ namespace gcc
 
         while(curr != &m_impl.m_node)
         {
-            node* tmp = static_cast<node*> (curr);
-            curr = tmp->m_next;
-            Tp* val = tmp->m_valptr();
+            node* node_to_delete = static_cast<node*> (curr);
+            Tp* val_to_delete = node_to_delete->m_valptr();
 
-            node_alloc_traits::destroy(m_get_node_allocator(), val);
+            curr = node_to_delete->m_next;
 
-            m_put_node(tmp);
+            // only destroys object as its memory is part of node
+            // so deallocation of node deallocates object's memory
+            node_alloc_traits::destroy(m_get_node_allocator(), val_to_delete);
+
+            m_put_node(node_to_delete);
         }
     }
 
@@ -31,6 +37,7 @@ namespace gcc
     void list<Tp, Alloc>::m_default_append(size_type n)
     {
         size_type i = 0;
+        // try to default construct n elements and append to tail
         try
         {
             for(; i < n; ++i)
@@ -38,6 +45,7 @@ namespace gcc
                 emplace_back();
             }
         }
+        // if failed then rollback all changes
         catch (...)
         {
             for(; i; --i)
@@ -50,23 +58,25 @@ namespace gcc
 
     template<typename Tp, typename Alloc>
     template<typename Input_iterator>
-    void list<Tp, Alloc>::m_assign_dispatch(Input_iterator first2, Input_iterator last2, std::false_type)
+    void list<Tp, Alloc>::m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type)
     {
         iterator f = begin();
         iterator l = end();
 
-        for(; f != l && first2 != last2; ++f, (void) ++first2)
+        for(; f != l && first != last; ++f, (void) ++first)
         {
-            *f = *first2;
+            *f = *first;
         }
 
-        if(first2 == last2)
+        // if this list is longer than other then erase extra elements
+        if(first == last)
         {
             erase(f, l);
         }
+        // if this list is shorter then copy remaining elements from other
         else
         {
-            insert(l, first2, last2);
+            insert(l, first, last);
         }
     }
 

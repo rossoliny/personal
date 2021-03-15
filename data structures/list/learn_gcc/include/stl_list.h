@@ -45,23 +45,25 @@ namespace gcc
         {
             detail::list_node_header m_node;
 
-            list_impl() noexcept(std::is_nothrow_default_constructible<node_alloc_type>::value) : node_alloc_type()
+            list_impl() noexcept(std::is_nothrow_default_constructible<node_alloc_type>::value)
+                : node_alloc_type()
             {
             }
 
-            list_impl(const node_alloc_type& other) noexcept : node_alloc_type(other)
+            list_impl(const node_alloc_type& other_base) noexcept
+                : node_alloc_type(other_base)
             {
             }
 
             list_impl(list_impl&&) = default;
 
-            list_impl(node_alloc_type&& base, list_impl&& other)
-                : node_alloc_type(std::move(base), std::move(other))
+            list_impl(node_alloc_type&& rval_base, list_impl&& rval)
+                : node_alloc_type(std::move(rval_base), std::move(rval))
             {
             }
 
-            list_impl(node_alloc_type&& other) noexcept
-                : node_alloc_type(std::move(other))
+            list_impl(node_alloc_type&& rval_base) noexcept
+                : node_alloc_type(std::move(rval_base))
             {
             }
 
@@ -90,7 +92,7 @@ namespace gcc
         }
 
         // if not inline version
-        size_t m_distance(const detail::list_node_base *first, const detail::list_node_base *last) const
+        size_t m_distance(const detail::list_node_base* first, const detail::list_node_base* last) const
         {
             return s_distance(first, last);
         }
@@ -99,10 +101,13 @@ namespace gcc
         // return the stored size
         size_t m_node_count() const
         {
+            // return m_impl.m_node.m_size
             return m_get_size();
         }
 
 
+        // uses m_impl.allocate to allocate m_impl::value_type (aka list_node<Tp>)
+        // return pointer (aka allocator_traits< allocator<list_node<Tp>> >*)
         typename node_alloc_traits::pointer m_get_node()
         {
             return node_alloc_traits::allocate(m_impl, 1);
@@ -116,6 +121,7 @@ namespace gcc
     public:
         using allocator_type = Alloc;
 
+        // returns reference to instance of used allocator
         node_alloc_type& m_get_node_allocator() noexcept
         {
             return m_impl;
@@ -130,35 +136,39 @@ namespace gcc
 
         list_base(list_base&&) = default;
 
-        list_base(const node_alloc_type& a) noexcept
-            : m_impl(a)
+        // constructs list_base with provided node_allocator
+        list_base(const node_alloc_type& alloc) noexcept
+            : m_impl(alloc) // calls allocator_type's ctor and passes args there
         {
         }
 
         // if not inline version
-        list_base(list_base&& other, node_alloc_type&& other_m_impl)
-            : m_impl(std::move(other_m_impl))
+        list_base(list_base&& rval, node_alloc_type&& rval_alloc)
+            : m_impl(std::move(rval_alloc)) // calls allocator_type's ctor and passes args there
         {
-            if (other.m_get_node_allocator() == m_get_node_allocator())
-                m_move_nodes(std::move(other));
+            if (rval.m_get_node_allocator() == m_get_node_allocator())
+                m_move_nodes(std::move(rval));
             // else caller must move individual elements.
         }
 
         // Used when allocator !is_always_equal.
+        //
         list_base(node_alloc_type&& impl, list_base&& other)
-            : m_impl(std::move(impl), std::move(other.m_impl))
+            : m_impl(std::move(impl), std::move(other.m_impl)) // calls allocator_type's ctor and passes args there
         {
         }
 
         // Used when allocator !is_always_equal.
         list_base(node_alloc_type&& impl)
-            : m_impl(std::move(impl))
+            : m_impl(std::move(impl)) // calls allocator_type's ctor and passes args there
         {
         }
 
-        void m_move_nodes(list_base&& other)
+        // unlinks r_val.m_impl.m_node (header) from entire sequence
+        // and links that sequence with this->m_impl.m_node
+        void m_move_nodes(list_base&& rval)
         {
-            m_impl.m_node.m_move_nodes(std::move(other.m_impl.m_node));
+            m_impl.m_node.m_move_nodes(std::move(rval.m_impl.m_node));
         }
 
         ~list_base() noexcept
@@ -169,6 +179,7 @@ namespace gcc
         // in file list.tcc
         void m_clear() noexcept;
 
+        // makes m_node empty and size = 0
         void m_init() noexcept
         {
             this->m_impl.m_node.m_init();
@@ -220,10 +231,13 @@ namespace gcc
         using base::m_get_node_allocator;
 
 
+        // allocates node and constructs new object(elemnt) in allocated memory
         template<typename... Args>
         node* m_create_node(Args&&... args)
         {
+            // calls allocator_traits::allocate(m_impl, 1)
             auto p = this->m_get_node();
+            // return m_impl
             auto& alloc = m_get_node_allocator();
             // allocated_ptr<node_alloc_type> guard{alloc, p};
             node_alloc_traits::construct(alloc, p->m_valptr(), std::forward<Args>(args)...);
@@ -240,6 +254,7 @@ namespace gcc
         // return the stored size
         size_t m_node_count() const
         {
+            // m_get_size returns super->m_impl.m_node.m_size
             return this->m_get_size();
         }
 
@@ -262,7 +277,7 @@ namespace gcc
         explicit list(size_type n, const allocator_type& alloc = allocator_type())
             : base(node_alloc_type(alloc))
         {
-            m_fill_initialize(n);
+            m_default_initialize(n);
         }
 
         /**
@@ -577,6 +592,8 @@ namespace gcc
          */
         void push_back(const value_type& x)
         {
+            // end points to element after last which is first
+            // m_insert inserts before first element which is after last
             this->m_insert(end(), x);
         }
 
@@ -629,6 +646,8 @@ namespace gcc
         // Internal constructor functions
 
         // Called by range constructor
+        // seems to be used only until c++11
+        // seems to be kind a fix of some corner cases
         template<typename Integer>
         void m_initialize_dispatch(Integer n, Integer x, std::true_type)
         {
@@ -648,6 +667,7 @@ namespace gcc
         }
 
 
+        // O(N)
         // Called by list(n,v,a), and the range constructor when it turns out
         // to be the same thing.
         void m_fill_initialize(size_type n, const value_type& x)
@@ -669,7 +689,8 @@ namespace gcc
         }
 
         // if >= c++11
-        // Called by resize
+        // Used to implement resize
+        // default construct n consecutive elements at list's tail
         void m_default_append(size_type n); // in list.tcc
 
 
@@ -677,14 +698,18 @@ namespace gcc
         // Internal assign functions follow.
 
         // Called by range assign
+        // seems also to be used only until c++11
         template<typename Integer>
         void m_assign_dispatch(Integer n, Integer val, std::true_type)
         {
             m_fill_assign(n, val);
         }
+
         // Called by range assign
+        // copies min(this.size(), other.size()) elements into container by calling Tp's copy ctor
+        // and if this is shorter than other then append remaining elements
         template<typename Input_iterator>
-        void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type);
+        void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type); // in list.tcc
 
         // Called by assigh(n, t) and the range assign when it turns out to be the same thing
         void m_fill_assign(size_type n, const value_type& val); // in list.tcc
@@ -695,7 +720,7 @@ namespace gcc
             position.m_node->m_transfer(first.m_node, last.m_node);
         }
 
-        // Inserts new element at position given and with value given
+        // Inplace cinstructs new element before position with value given
         template<typename... Args>
         void m_insert(iterator position, Args&&... args)
         {

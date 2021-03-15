@@ -13,6 +13,12 @@ std::ostream& operator<<(std::ostream& s, const gcc::list<T>& v)
     return s << ']';
 }
 
+class a
+{
+public:
+    std::string val = "isa";
+};
+
 int main()
 {
     // c++11 initializer list syntax:
@@ -30,4 +36,7 @@ int main()
     // words4 is {"Mo", "Mo", "Mo", "Mo", "Mo"}
     gcc::list<std::string> words4(5, "Mo");
     std::cout << "words4: " << words4 << '\n';
+
+
+    gcc::list<a> t(2);
 }
