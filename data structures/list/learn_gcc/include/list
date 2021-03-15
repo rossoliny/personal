@@ -2,10 +2,10 @@
 // Created by Isa on 3/13/21.
 //
 
-#ifndef ISA_LIST
-#define ISA_LIST
+#ifndef GCC_LIST
+#define GCC_LIST
 
 #include "stl_list.h"
 #include "list.tcc"
 
-#endif //ISA_LIST
+#endif //GCC_LIST

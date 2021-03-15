@@ -195,14 +195,14 @@ namespace gcc
     struct list_const_iterator
     {
         using self = list_const_iterator<Tp>;
-        using node = list_node<Tp>;
+        using node = const list_node<Tp>;
         using iterator = list_iterator<Tp>;
 
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = Tp;
-        using pointer = Tp*;
-        using reference = Tp&;
+        using pointer = const Tp*;
+        using reference = const Tp&;
 
         list_const_iterator() noexcept
             : m_node()
@@ -226,12 +226,12 @@ namespace gcc
 
         reference operator*() const noexcept
         {
-            return *static_cast<node*> (m_node)->valptr();
+            return *static_cast<node*> (m_node)->m_valptr();
         }
 
         pointer operator->() const noexcept
         {
-            return *static_cast<node*> (m_node)->valptr();
+            return *static_cast<node*> (m_node)->m_valptr();
         }
 
         self& operator++() noexcept
@@ -537,7 +537,7 @@ namespace gcc
          *  by other (unless the allocator traits dictate a different object).
          */
         list(const list& other)
-            : base(node_alloc_traits::select_on_container_copy_construction(other.get_node_allocator()))
+            : base(node_alloc_traits::select_on_container_copy_construction(other.m_get_node_allocator()))
         {
             m_initialize_dispatch(other.begin(), other.end(), std::false_type());
         }
@@ -614,9 +614,82 @@ namespace gcc
          */
         ~list() = default;
 
-        // TODO: assign functions
+        // assign operators
+
+        /**
+         *  All the elements of other are copied.
+         *
+         *  Whether the allocator is copied depends on the allocator traits.
+         */
+        list& operator=(const list& other); // impl in list.tcc
+
+        /**
+         *
+         *  The contents of rval are moved into this list (without copying).
+         *
+         *  Afterwards rval is a valid, but unspecified list
+         *
+         *  Whether the allocator is moved depends on the allocator traits.
+         */
+        list& operator=(list&& rval)
+                noexcept(node_alloc_traits::propagate_on_container_move_assignment::value || node_alloc_traits::is_always_equal::value)
+        {
+            constexpr bool move_storage =
+                    node_alloc_traits::propagate_on_container_move_assignment::value || node_alloc_traits::is_always_equal::value;
+
+            m_move_assign(std::move(rval), gcc::bool_constant<move_storage>());
+            return *this;
+        }
+
+        /**
+         *  Replace the contents of the list with copies of the elements
+         *  in the std::initializer_list il.  This is linear in il.size().
+         */
+        list& operator=(std::initializer_list<value_type> il)
+        {
+            this->assign(il.begin(), il.end());
+            return *this;
+        }
 
 
+        // assign funciton
+        /**
+         *  This function fills a list with n copies of the given
+         *  value.  Note that the assignment completely changes the list
+         *  and that the resulting list's size is the same as the number
+         *  of elements assigned.
+         */
+        void assign(size_type n, const value_type& val)
+        {
+            m_fill_assign(n, val);
+        }
+
+        /**
+         *  This function fills a %list with copies of the elements in the
+         *  range [@a __first,@a __last).
+         *
+         *  Note that the assignment completely changes the %list and
+         *  that the resulting %list's size is the same as the number of
+         *  elements assigned.
+         */
+        template<typename Input_iterator,
+                typename = gcc::require_input_iter<Input_iterator>>
+        void assign(Input_iterator first, Input_iterator last)
+        {
+            m_assign_dispatch(first, last, std::false_type());
+        }
+
+
+
+        /**
+         *  Replace the contents of the list with copies of the elements
+         *  in the std::initializer_list il.  This is linear in il.size().
+         */
+        void
+        assign(std::initializer_list<value_type> il)
+        {
+            this->m_assign_dispatch(il.begin(), il.end(), std::false_type());
+        }
 
 
         // Get a copy of the memory allocation object.
@@ -791,6 +864,19 @@ namespace gcc
         }
 
 
+
+        /**
+         *  Erases all the elements.  Note that this function only erases
+         *  the elements, and that if the elements themselves are
+         *  pointers, the pointed-to memory is not touched in any way.
+         *  Managing the pointer is the user's responsibility.
+         */
+        void clear() noexcept
+        {
+            base::m_clear();
+            base::m_init();
+        }
+
     protected:
         // Internal constructor functions
 
@@ -900,26 +986,7 @@ namespace gcc
         const_iterator m_resize_pos(size_type& new_size) const;
 
 
-        template<typename _Alloc>
-        inline void do_alloc_on_move(_Alloc& a, _Alloc& b, std::true_type)
-        {
-            // pocma true -> move assign allocators
-            a = std::move(b);
-        }
 
-        template<typename _Alloc>
-        inline void do_alloc_on_move(Alloc& a, Alloc& b, std::false_type)
-        {
-            // pocma false -> do nothing
-            return;
-        }
-
-        template<typename _Alloc>
-        inline void alloc_on_move(_Alloc& a, _Alloc& b)
-        {
-            using pocma = typename std::allocator_traits<_Alloc>::propagate_on_container_move_assignment;
-            do_alloc_on_move(a, b, pocma());
-        }
 
         void m_move_assign(list&& other, std::true_type) noexcept
         {

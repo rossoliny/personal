@@ -1,19 +1,33 @@
 #include "list"
+#include <iostream>
 
+template<typename T>
+std::ostream& operator<<(std::ostream& s, const gcc::list<T>& v)
+{
+    s.put('[');
+    char comma[3] = {'\0', ' ', '\0'};
+    for (const auto& e : v) {
+        s << comma << e;
+        comma[0] = ',';
+    }
+    return s << ']';
+}
 
 int main()
 {
-	gcc::list<int> l;
+    // c++11 initializer list syntax:
+    gcc::list<std::string> words1 {"the", "frogurt", "is", "also", "cursed"};
+    std::cout << "words1: " << words1 << '\n';
 
-	gcc::list<int>::iterator i = l.end();
-    gcc::list<int>::iterator i2 = l.begin();
+    // words2 == words1
+    gcc::list<std::string> words2(words1.begin(), words1.end());
+    std::cout << "words2: " << words2 << '\n';
 
-    gcc::list<int>::const_iterator i3 = l.cend();
-    gcc::list<int>::const_iterator i4 = l.cbegin();
+    // words3 == words1
+    gcc::list<std::string> words3(words1);
+    std::cout << "words3: " << words3 << '\n';
 
-    gcc::list<int>::reverse_iterator i5 = l.rend();
-    gcc::list<int>::reverse_iterator i6 = l.rbegin();
-
-    gcc::list<int>::const_reverse_iterator i7 = l.crend();
-    gcc::list<int>::const_reverse_iterator i8 = l.crbegin();
+    // words4 is {"Mo", "Mo", "Mo", "Mo", "Mo"}
+    gcc::list<std::string> words4(5, "Mo");
+    std::cout << "words4: " << words4 << '\n';
 }

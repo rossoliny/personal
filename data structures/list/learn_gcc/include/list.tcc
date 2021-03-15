@@ -120,6 +120,29 @@ namespace gcc
         return i;
     }
 
+    // list public interface
+    template<typename Tp, typename Alloc>
+    list<Tp, Alloc>& list<Tp, Alloc>::operator=(const list<Tp, Alloc>& other)
+    {
+        if(this != std::addressof(other))
+        {
+            if(node_alloc_traits::propagate_on_container_copy_assignment::value)
+            {
+                auto& this_alloc = this->m_get_node_allocator();
+                auto& other_alloc = other.m_get_node_allocator();
+
+                if (!node_alloc_traits::is_always_equal::value && this_alloc != other_alloc)
+                {
+                    // replacement allocator cannot free existing storage
+                    clear();
+                }
+                alloc_on_copy(this_alloc, other_alloc);
+            }
+        }
+        m_assign_dispatch(other.begin(), other.end(), std::false_type());
+        return *this;
+    }
+
 }
 
 

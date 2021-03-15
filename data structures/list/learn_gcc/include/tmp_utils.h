@@ -6,6 +6,7 @@
 #define TMP_UTILS_H
 
 #include <iterator>
+#include <memory>
 
 namespace gcc {
 
@@ -73,6 +74,56 @@ namespace gcc {
             return one != two;
         }
     };
+
+
+    // move assign allocator if possible
+    template<typename Alloc>
+    inline void do_alloc_on_move(Alloc& a, Alloc& b, std::true_type)
+    {
+        // pocma true -> move assign allocators
+        a = std::move(b);
+    }
+
+    template<typename Alloc>
+    inline void do_alloc_on_move(Alloc& a, Alloc& b, std::false_type)
+    {
+        // pocma false -> do nothing
+        return;
+    }
+
+    template<typename Alloc>
+    inline void alloc_on_move(Alloc& a, Alloc& b)
+    {
+        using pocma = typename std::allocator_traits<Alloc>::propagate_on_container_move_assignment;
+        do_alloc_on_move(a, b, pocma());
+    }
+
+
+
+    // copy assign allocator if possible
+    template<typename Alloc>
+    inline void do_alloc_on_copy(Alloc& a, const Alloc& b, std::true_type)
+    {
+        a = b;
+    }
+
+    template<typename Alloc>
+    inline void do_alloc_on_copy(Alloc& a, const Alloc& b, std::false_type)
+    {
+        return;
+    }
+
+    template<typename Alloc>
+    inline void alloc_on_copy(Alloc& a, const Alloc& b)
+    {
+        using traits = std::allocator_traits<Alloc>;
+        using pocca = typename traits::propagate_on_container_copy_assignment;
+
+        do_alloc_on_copy(a, b, pocca());
+    }
+
+    template <bool B>
+    using bool_constant = std::integral_constant<bool, B>;
 
 }
 

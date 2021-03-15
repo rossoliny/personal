@@ -5,7 +5,7 @@
 #include "list"
 #include <utility>
 
-namespace isa
+namespace gcc
 {
 
     namespace detail
@@ -22,7 +22,7 @@ namespace isa
                     std::swap(x.m_prev, y.m_prev);
                     // update neighbour nodes
                     x.m_next->m_prev = x.m_prev->m_next = &x;
-                    y.m_next->m_prev = y.m_prev->m_next = &Y;
+                    y.m_next->m_prev = y.m_prev->m_next = &y;
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace isa
                 std::swap(curr->m_next, curr->m_prev);
 
                 curr = curr->m_prev; // forward traversal (not reversed)
-            } while (curr != this;)
+            } while (curr != this);
         }
 
         // insert this before position
