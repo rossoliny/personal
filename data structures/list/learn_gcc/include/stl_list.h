@@ -5,275 +5,18 @@
 #ifndef GCC_STL_LIST_H
 #define GCC_STL_LIST_H
 
-#include "aligned_buffer.h"
+
+#include "list_iterator.h"
+#include "list_node.h"
+
 #include "tmp_utils.h"
 
 #include <type_traits>
 #include <memory>
 
+
 namespace gcc
 {
-
-
-    namespace detail
-    {
-
-        struct list_node_base
-        {
-            list_node_base *m_next;
-            list_node_base *m_prev;
-
-            static void swap(list_node_base &x, list_node_base &y) noexcept;
-
-            void m_transfer(list_node_base *const first, list_node_base *const last) noexcept;
-
-            void m_reverse() noexcept;
-
-            void m_hook(list_node_base *const position) noexcept;
-
-            void m_unhook() noexcept;
-
-        };
-
-        struct list_node_header : public list_node_base
-        {
-            std::size_t m_size;
-
-            void m_init() noexcept
-            {
-                this->m_next = this->m_prev = this;
-                this->m_size = 0;
-            }
-
-        private:
-            list_node_base* m_base()
-            {
-                return this;
-            }
-
-        public:
-            list_node_header() noexcept
-            {
-                m_init();
-            }
-
-            list_node_header(list_node_header&& other) noexcept
-                : list_node_base { other.m_next, other.m_prev }
-                , m_size(other.m_size)
-            {
-                if(other.m_base()->m_next == other.m_base())
-                {
-                    this->m_next = this->m_prev = this;
-                }
-                else
-                {
-                    this->m_next->m_prev =
-                            this->m_prev->m_next = this->m_base();
-
-                    other.m_init();
-                }
-            }
-
-            void m_move_nodes(list_node_header&& other)
-            {
-                list_node_base* const other_base = other.m_base();
-                if(other_base->m_next == other_base)
-                {
-                    m_init();
-                }
-                else
-                {
-                    list_node_base* const mbase = this->m_base();
-                    mbase->m_next = other_base->m_next;
-                    mbase->m_prev = other_base->m_prev;
-                    mbase->m_prev->m_next = mbase->m_next->m_prev = mbase;
-                    this->m_size = other.m_size;
-
-                    other.m_init();
-                }
-            }
-        };
-
-    } // namespace detail
-
-
-    template<typename Tp>
-    struct list_node : public detail::list_node_base
-    {
-        gcc::aligned_membuf<Tp> m_storage;
-        Tp* m_valptr()
-        {
-            return m_storage.m_ptr();
-        }
-
-        Tp const* m_valptr() const
-        {
-            return m_storage.m_ptr();
-        }
-    };
-
-
-    // iterators
-
-    template<typename Tp>
-    struct list_iterator
-    {
-        using self = list_iterator<Tp>;
-        using node = list_node<Tp>;
-
-        using iterator_category = std::bidirectional_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = Tp;
-        using pointer = Tp*;
-        using reference = Tp&;
-
-        list_iterator() noexcept
-            : m_node()
-        {
-        }
-
-        explicit list_iterator(detail::list_node_base* node) noexcept
-            : m_node(node)
-        {
-        }
-
-        self m_const_cast() const noexcept
-        {
-            return *this;
-        }
-
-        reference operator*() const noexcept
-        {
-            return *static_cast<node*>(m_node)->m_valptr();
-        }
-
-        pointer operator->() const noexcept
-        {
-            return static_cast<node*>(m_node)->m_valptr();
-        }
-
-        self& operator++() noexcept
-        {
-            m_node = m_node->m_next;
-            return *this;
-        }
-
-        self& operator++(int) noexcept
-        {
-            self old = *this;
-            m_node = m_node->m_next;
-            return old;
-        }
-
-        self& operator--() noexcept
-        {
-            m_node = m_node->m_prev;
-            return *this;
-        }
-
-        self& operator--(int) noexcept
-        {
-            self old = *this;
-            m_node = m_node->m_prev;
-            return old;
-        }
-
-        friend bool operator==(const self& a, const self& b) noexcept
-        {
-            return a.m_node == b.m_node;
-        }
-
-        friend bool operator!=(const self& a, const self& b) noexcept
-        {
-            return a.m_node != b.m_node;
-        }
-
-        detail::list_node_base* m_node;
-    };
-
-    template<typename Tp>
-    struct list_const_iterator
-    {
-        using self = list_const_iterator<Tp>;
-        using node = const list_node<Tp>;
-        using iterator = list_iterator<Tp>;
-
-        using iterator_category = std::bidirectional_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = Tp;
-        using pointer = const Tp*;
-        using reference = const Tp&;
-
-        list_const_iterator() noexcept
-            : m_node()
-        {
-        }
-
-        explicit list_const_iterator(const detail::list_node_base* node) noexcept
-            : m_node(node)
-        {
-        }
-
-        list_const_iterator(const iterator& other) noexcept
-            : m_node(other.m_node)
-        {
-        }
-
-        iterator m_const_cast() const noexcept
-        {
-            return iterator(const_cast<detail::list_node_base*> (m_node));
-        }
-
-        reference operator*() const noexcept
-        {
-            return *static_cast<node*> (m_node)->m_valptr();
-        }
-
-        pointer operator->() const noexcept
-        {
-            return *static_cast<node*> (m_node)->m_valptr();
-        }
-
-        self& operator++() noexcept
-        {
-            m_node = m_node->m_next;
-            return *this;
-        }
-
-        self& operator++(int) noexcept
-        {
-            self old = *this;
-            m_node = m_node->m_next;
-            return old;
-        }
-
-        self& operator--() noexcept
-        {
-            m_node = m_node->m_prev;
-            return *this;
-        }
-
-        self& operator--(int) noexcept
-        {
-            self old = *this;
-            m_node = m_node->m_prev;
-            return old;
-        }
-
-        friend bool operator==(const self& a, const self& b) noexcept
-        {
-            return a.m_node == b.m_node;
-        }
-
-        friend bool operator!=(const self& a, const self& b) noexcept
-        {
-            return a.m_node != b.m_node;
-        }
-
-        const detail::list_node_base* m_node;
-    };
-
-
     // list_base
     template<typename Tp, typename Alloc>
     class list_base
@@ -439,7 +182,7 @@ namespace gcc
     template<typename Tp, typename Alloc = std::allocator<Tp>>
     class list : protected list_base<Tp, Alloc>
     {
-        static_assert(std::is_same<typename std::remove_cv<Tp>::type, Tp>::value, "isa::list must have a non-const, non-volatile value_type");
+        static_assert(std::is_same<typename std::remove_cv<Tp>::type, Tp>::value, "gcc::list must have a non-const, non-volatile value_type");
 
         using base = list_base<Tp, Alloc>;
         using Tp_alloc_type = typename base::Tp_alloc_type;
@@ -877,6 +620,11 @@ namespace gcc
             base::m_init();
         }
 
+
+
+
+
+        // INTERNAL IMPLEMENTATION FUNCTIONS
     protected:
         // Internal constructor functions
 
@@ -939,7 +687,7 @@ namespace gcc
         void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type);
 
         // Called by assigh(n, t) and the range assign when it turns out to be the same thing
-        void m_fill_assign(size_type n, const value_type& val);
+        void m_fill_assign(size_type n, const value_type& val); // in list.tcc
 
         // Moves the elements from [first, last) before position
         void m_transfer(iterator position, iterator first, iterator last)
@@ -983,8 +731,7 @@ namespace gcc
         }
 
         // Used to implement resize
-        const_iterator m_resize_pos(size_type& new_size) const;
-
+        const_iterator m_resize_pos(size_type& new_size) const; // in list.tcc
 
 
 
