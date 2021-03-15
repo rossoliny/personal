@@ -25,7 +25,7 @@ namespace gcc
         // Can be used to avoid value-initialization zeroing _M_storage.
         aligned_membuf(std::nullptr_t)
         {
-            // do not zero out
+            // do not zero out storage
         }
 
         void* m_addr() noexcept
