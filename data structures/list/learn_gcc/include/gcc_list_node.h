@@ -4,7 +4,7 @@
 
 #ifndef LIST_NODE_H
 #define LIST_NODE_H
-#include "aligned_buffer.h"
+#include "gcc_aligned_buffer.h"
 
 namespace gcc
 {

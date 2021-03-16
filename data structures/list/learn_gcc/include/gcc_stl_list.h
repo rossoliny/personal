@@ -6,10 +6,10 @@
 #define GCC_STL_LIST_H
 
 
-#include "list_iterator.h"
-#include "list_node.h"
+#include "gcc_list_iterator.h"
+#include "gcc_list_node.h"
 
-#include "tmp_utils.h"
+#include "gcc_tmp_utils.h"
 
 #include <type_traits>
 #include <memory>
@@ -265,7 +265,7 @@ namespace gcc
 
         list() = default;
 
-        explicit list(allocator_type& alloc) noexcept
+        explicit list(const allocator_type& alloc) noexcept
             : base(node_alloc_type(alloc))
         {
         }
@@ -855,7 +855,7 @@ namespace gcc
             other.m_set_size(this->m_get_size());
             this->m_set_size(other_size);
 
-            alloc_on_swap(this->m_get_Node_allocator(), other.m_get_Node_allocator());
+            alloc_on_swap(this->m_get_node_allocator(), other.m_get_node_allocator());
         }
 
 

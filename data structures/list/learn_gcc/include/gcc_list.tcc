@@ -132,7 +132,7 @@ namespace gcc
         // else list grows or stays as is
         else
         {
-            i = this->nd();
+            i = this->end();
         }
         // c++11 abi
 
@@ -397,7 +397,7 @@ namespace gcc
 			catch(...)
 			{
 				const size_t dist = std::distance(first2, last2);
-				this->_inc_size(rval_orig_size - dist);
+				this->m_inc_size(rval_orig_size - dist);
 				rval.m_set_size(dist);
 
 				throw;

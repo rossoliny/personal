@@ -5,7 +5,7 @@
 #ifndef LIST_ITERATOR_H
 #define LIST_ITERATOR_H
 
-#include "list_node.h"
+#include "gcc_list_node.h"
 #include <iterator>
 
 namespace gcc

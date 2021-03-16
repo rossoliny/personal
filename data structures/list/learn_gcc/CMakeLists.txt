@@ -8,15 +8,13 @@ add_compile_options(-Wno-gnu)
 
 include_directories(include)
 
-set(TEST_SRC
+set(TEST_SRC_CATCH
         tests/tests_driver.cpp
 
         tests/ctor.cpp
     )
 
-
 #find_package(Catch2 #[[REQUIRED]])
 
-
-add_executable(tests ${TEST_SRC})
+add_executable(test_with_catch ${TEST_SRC_CATCH})
 #target_link_libraries(tests PUBLIC Catch2::Catch2)
