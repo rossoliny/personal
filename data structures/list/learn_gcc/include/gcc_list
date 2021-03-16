@@ -1,0 +1,12 @@
+//
+// Created by Isa on 3/13/21.
+//
+
+#ifndef GCC_LIST
+#define GCC_LIST
+
+
+#include "gcc_stl_list.h"
+#include "gcc_list.tcc"
+
+#endif //GCC_LIST
