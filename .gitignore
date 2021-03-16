@@ -9,5 +9,5 @@
 !CMakeLists.txt
 build/
 cmake-build-*
-!list
+!gcc_list
 !*.tcc
