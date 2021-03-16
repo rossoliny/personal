@@ -1322,7 +1322,7 @@ namespace gcc
     }
 
     template<typename Tp>
-    inline ptrdiff_t distance(gcc::list_const_iterator <Tp> first, gcc::list_const_iterator <Tp> last, std::input_iterator_tag __tag)
+    inline ptrdiff_t distance(gcc::list_const_iterator <Tp> first, gcc::list_const_iterator <Tp> last, std::input_iterator_tag tag)
     {
         using sentinel = detail::list_node_header;
         gcc::list_const_iterator<Tp> beyond = last;
