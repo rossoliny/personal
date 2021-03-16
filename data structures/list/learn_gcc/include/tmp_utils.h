@@ -122,6 +122,28 @@ namespace gcc {
         do_alloc_on_copy(a, b, pocca());
     }
 
+
+    template<typename Alloc>
+    inline void do_alloc_on_swap(Alloc& a, Alloc& b, std::true_type)
+    {
+        using std::swap;
+        swap(a, b);
+    }
+
+    template<typename Alloc>
+    inline void do_alloc_on_swap(Alloc& a, Alloc& b, std::false_type)
+    {
+        return;
+    }
+
+    template<typename Alloc>
+    inline void alloc_on_swap(Alloc& a, Alloc& b)
+    {
+        typedef std::allocator_traits<Alloc> traits;
+        typedef typename traits::propagate_on_container_swap pocs;
+        do_alloc_on_swap(a, b, pocs());
+    }
+
     template <bool B>
     using bool_constant = std::integral_constant<bool, B>;
 

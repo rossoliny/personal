@@ -95,7 +95,7 @@ namespace gcc
                 position->m_prev = this;
             }
 
-            // unlinks
+            // unlinks this from sequence
             void m_unhook() noexcept
             {
                 this->m_prev->m_next = this->m_next;

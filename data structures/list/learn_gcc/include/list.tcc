@@ -99,19 +99,27 @@ namespace gcc
         }
     }
 
+
+    // returns iterator pointing to position at which to insert new elememts or after which to erase extra elememts
+    // returns difference between list.size() and new_size if new_size >= list.size()
+    // else returns 0
     template<typename Tp, typename Alloc>
     typename list<Tp, Alloc>::const_iterator list<Tp, Alloc>::m_resize_pos(size_type& new_size) const
     {
         const_iterator i;
         // c++11 abi
         const size_type len = size();
+        //if list shrinks
         if(new_size < len)
         {
+            // if position is inside first half
+            // then it's faster to advance from begining
             if(new_size <= len / 2)
             {
                 i = begin();
                 std::advance(i, new_size);
             }
+            // if position is inside second half
             else
             {
                 i = end();
@@ -121,10 +129,12 @@ namespace gcc
             new_size = 0;
             return i;
         }
+        // else list grows or stays as is
         else
         {
             i = end();
         }
+        // c++11 abi
 
         new_size -= len;
         return i;
@@ -152,6 +162,50 @@ namespace gcc
         m_assign_dispatch(other.begin(), other.end(), std::false_type());
         return *this;
     }
+
+    template<typename Tp, typename Alloc>
+    void list<Tp, Alloc>::resize(size_type new_size)
+	{
+		const_iterator it = m_resize_pos(new_size);
+		if (new_size)
+		{
+			m_default_append(new_size);
+		}
+		else
+		{
+			erase(it, end());
+		}
+	}
+
+
+
+    template<typename Tp, typename Alloc>
+    typename list<Tp, Alloc>::iterator list<Tp, Alloc>::insert(const_iterator pos, size_type n, const value_type& val)
+	{
+		if(n)
+		{
+			list tmp(n, val, get_allocator());
+			iterator it = tmp.begin();
+			splice(pos, tmp);
+			return it;
+		}
+		return pos.m_const_cast();
+	}
+
+    template<typename Tp, typename Alloc>
+    template<typename Input_iterator, typename>
+    typename list<Tp, Alloc>::iterator list<Tp, Alloc>::insert(const_iterator position, Input_iterator first, Input_iterator last)
+    {
+        list tmp(first, last, get_allocator());
+        if(!tmp.empty())
+        {
+            iterator it = tmp.begin();
+            splice(position, tmp);
+            return it;
+        }
+        return position.m_const_cast();
+    }
+
 
 }
 

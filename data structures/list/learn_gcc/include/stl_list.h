@@ -13,7 +13,7 @@
 
 #include <type_traits>
 #include <memory>
-
+#include <algorithm>
 
 namespace gcc
 {
@@ -379,7 +379,7 @@ namespace gcc
          *
          *  Whether the allocator is copied depends on the allocator traits.
          */
-        list& operator=(const list& other); // impl in list.tcc
+        list& operator=(const list& other) // impl in list.tcc
 
         /**
          *
@@ -578,10 +578,127 @@ namespace gcc
             return const_reverse_iterator(begin());
         }
 
+        // capacity funstions
+
+        bool empty() const noexcept
+        {
+            return this->m_impl.m_node.m_next == &this->m_impl.m_node;
+        }
+
         size_type size() const noexcept
         {
             return m_node_count();
         }
+
+        //  Returns the size() of the largest possible list.
+        size_type max_size() const noexcept
+        {
+            return node_alloc_traits::max_size(m_get_node_allocator());
+        }
+
+        /**
+         *  This function will resize the list to the specified number
+         *  of elements.  If the number is smaller than the list's
+         *  current size the list is truncated, otherwise default
+         *  constructed elements are appended.
+         */
+        void resize(size_type new_size); // in list.tcc
+
+        /**
+         *  This function will resize the list to the specified number
+         *  of elements.  If the number is smaller than the list's
+         *  current size the list is truncated, otherwise the list is
+         *  extended and new elements are populated with given val by copy construction.
+         */
+        void resize(size_type new_size, const value_type& val); // in list.tcc
+
+
+
+        // element access functions
+
+        /**
+         *  Returns a read/write reference to the data at the first
+         *  element of the list.
+         */
+        reference front() noexcept
+        {
+            return *begin();
+        }
+
+        /**
+         *  Returns a read-only (constant) reference to the data at the first
+         *  element of the list.
+         */
+        const_reference front() const noexcept
+        {
+            return *begin();
+        }
+
+        /**
+         *  Returns a read/write reference to the data at the last element
+         *  of the list.
+         */
+        reference back() noexcept
+        {
+            iterator tmp = end();
+            --tmp;
+            return *tmp;
+        }
+
+        /**
+         *  Returns a read-only (constant) reference to the data at the last
+         *  element of the list.
+         */
+        const_reference back() const noexcept
+        {
+            const_iterator tmp = end();
+            --tmp;
+            return *tmp;
+        }
+
+
+        // modifiers functions
+
+        /**
+         *  This is a typical stack operation.  The function creates an
+         *  element at the front of the list and assigns the given data
+         *  to it.  Due to the nature of a list this operation can be
+         *  done in constant time, and does not invalidate iterators and
+         *  references.
+         */
+        void push_front(const value_type& val)
+        {
+            this->m_insert(begin(), val);
+        }
+
+
+        void push_front(value_type&& rval)
+        {
+            this->m_insert(begin(), std::move(rval));
+        }
+
+        template<typename... Args>
+        void emplace_front(Args&&... args)
+        {
+            this->m_insert(begin(), std::forward<Args>(args)...);
+        }
+
+
+        /**
+         *  This is a typical stack operation.  It shrinks the list by
+         *  one.  Due to the nature of a list this operation can be done
+         *  in constant time, and only invalidates iterators/references to
+         *  the element being removed.
+         *
+         *  Note that no data is returned, and if the first element's data
+         *  is needed, it should be retrieved before pop_front() is
+         *  called.
+         */
+        void pop_front() noexcept
+        {
+            this->m_erase(begin());
+        }
+
 
         /**
          *  This is a typical stack operation.  The function creates an
@@ -623,6 +740,123 @@ namespace gcc
             this->m_erase(iterator(this->m_impl.m_node.m_prev));
         }
 
+        /**
+         *  This function will insert an object of type T constructed
+         *  with T(std::forward<Args>(args)...) before the specified
+         *  location.  Due to the nature of a list this operation can
+         *  be done in constant time, and does not invalidate iterators
+         *  and references.
+         */
+        template<typename... Args> iterator emplace(const_iterator position, Args&&... args); // in list.tcc
+
+        /**
+         *  This function will insert a copy of the given value before
+         *  the specified location.  Due to the nature of a list this
+         *  operation can be done in constant time, and does not
+         *  invalidate iterators and references.
+         */
+        iterator insert(const_iterator position, const value_type& val); // in list.tcc
+
+
+        /**
+         *  This function will insert a copy of the given rvalue before
+         *  the specified location.  Due to the nature of a list this
+         *  operation can be done in constant time, and does not
+         *  invalidate iterators and references.
+         */
+        iterator insert(const_iterator position, value_type&& rval)
+        {
+            return emplace(position, std::move(rval));
+        }
+
+        /**
+         *  This function will insert copies of the data in the
+         *  std::initializer_list il into the list before the location
+         *  specified by pos.
+         *
+         *  This operation is linear in the number of elements inserted and
+         *  does not invalidate iterators and references.
+         */
+        iterator insert(const_iterator pos, std::initializer_list<value_type> il)
+        {
+            return this->insert(pos, il.begin(), il.end());
+        }
+
+        /**
+         *  This function will insert a specified number of copies of the
+         *  given data before the location specified by position.
+         *
+         *  This operation is linear in the number of elements inserted and
+         *  does not invalidate iterators and references.
+         */
+        iterator insert(const_iterator pos, size_type n, const value_type& val); // in list.tcc
+
+        /**
+         *  This function will insert copies of the data in the range [first, last)
+         *  into the list before the location specified by position.
+         *
+         *  This operation is linear in the number of elements inserted and
+         *  does not invalidate iterators and references.
+         */
+        template<typename Input_iterator,
+                typename = gcc::require_input_iter<Input_iterator>>
+        iterator insert(const_iterator position, Input_iterator first, Input_iterator last); // in list.tcc
+
+
+        /**
+         *  This function will erase the element at the given position and thus
+         *  shorten the list by one.
+         *
+         *  Due to the nature of a list this operation can be done in
+         *  constant time, and only invalidates iterators/references to
+         *  the element being removed.  The user is also cautioned that
+         *  this function only erases the element, and that if the element
+         *  is itself a pointer, the pointed-to memory is not touched in
+         *  any way.  Managing the pointer is the user's responsibility.
+         */
+         iterator erase(const_iterator position) noexcept; // in list.tcc
+
+        /**
+         *  returns an iterator pointing to the element pointed to by last
+         *  prior to erasing (or end()).
+         *
+         *  This function will erase the elements in the range
+         *  [first, last) and shorten the list accordingly.
+         *
+         *  This operation is linear time in the size of the range and only
+         *  invalidates iterators/references to the element being removed.
+         *  The user is also cautioned that this function only erases the
+         *  elements, and that if the elements themselves are pointers, the
+         *  pointed-to memory is not touched in any way.  Managing the pointer
+         *  is the user's responsibility.
+         */
+         iterator erase(const_iterator first, const_iterator last) noexcept
+        {
+             while(first != last)
+             {
+                 first = erase(first);
+             }
+             return last.m_const_cast();
+        }
+
+        /**
+         *  This exchanges the elements between two lists in constant
+         *  time.  Note that the global std::swap() function is
+         *  specialized such that std::swap(l1,l2) will feed to this
+         *  function.
+         *
+         *  Whether the allocators are swapped depends if the allocator traits return true_type as propagate_on_container_swap.
+         */
+        void swap(list& other) noexcept
+        {
+            detail::list_node_base::swap(this->m_impl.m_node, other.m_impl.m_node);
+
+            size_t other_size = other.m_get_size();
+            other.m_set_size(this->m_get_size());
+            this->m_set_size(other_size);
+
+            alloc_on_swap(this->m_get_Node_allocator(), other.m_get_Node_allocator());
+        }
 
 
         /**
@@ -636,6 +870,208 @@ namespace gcc
             base::m_clear();
             base::m_init();
         }
+
+
+        // list operations
+        /**
+         *  The elements of rval are inserted in constant time in front of
+         *  the element referenced by position.  rval becomes an empty
+         *  list.
+         *
+         *  Requires this != rval.
+         */
+        void splice(const_iterator position, list&& rval) noexcept
+        {
+            if (!rval.empty()) {
+                m_check_equal_allocators(rval);
+
+                this->m_transfer(position.m_const_cast(), rval.begin(), rval.end());
+
+                this->m_inc_size(rval.m_get_size());
+                rval.m_set_size(0);
+            }
+        }
+
+
+        void splice(const_iterator position, list& other) noexcept
+        {
+            splice(position, std::move(other));
+        }
+
+
+        /**
+         *  Removes the element in list rval referenced by rval_pos and
+         *  inserts it into the current list before position.
+         */
+        void
+        splice(const_iterator position, list&& rval, const_iterator element) noexcept
+        {
+            iterator it = element.m_const_cast();
+            ++it;
+
+            if (position == element || position == it)
+            {
+                return;
+            }
+
+            if (this != std::addressof(rval))
+            {
+                m_check_equal_allocators(rval);
+            }
+
+            this->m_transfer(position.m_const_cast(), element.m_const_cast(), it);
+
+            this->m_inc_size(1);
+            rval.m_dec_size(1);
+        }
+
+        /**
+         *  Removes the element in list x referenced by i and
+         *  inserts it into the current list before position.
+         */
+        void splice(const_iterator position, list& other, const_iterator element) noexcept
+        {
+            splice(position, std::move(other), element);
+        }
+
+        /**
+         *  Removes elements from the range [first, last) and inserts them
+         *  before position in constant time.
+         *
+         *  Undefined if position is in [first, last).
+         */
+        void splice(const_iterator position, list&& rval, const_iterator first, const_iterator last) noexcept
+        {
+            if (first != last) {
+                if (this != std::addressof(rval))
+                {
+                    m_check_equal_allocators(rval);
+                }
+
+                size_t n = s_distance(first, last);
+                this->m_inc_size(n);
+                rval.m_dec_size(n);
+
+                this->m_transfer(position.m_const_cast(), first.m_const_cast(), last.m_const_cast());
+            }
+        }
+
+
+        /**
+         *  Removes elements in the range [first, last) and inserts them
+         *  before position in constant time.
+         *
+         *  Undefined if position is in [first, last).
+         */
+        void splice(const_iterator position, list& other, const_iterator first, const_iterator last) noexcept
+        {
+            splice(position, std::move(other), first, last);
+        }
+
+    private:
+         //if c++11
+         using remove_return_type = void;
+         //if __cplusplus > 201703L then size_type
+    public:
+        /**
+         *  Removes every element in the list equal to value.
+         *  Remaining elements stay in list order.  Note that this
+         *  function only erases the elements, and that if the elements
+         *  themselves are pointers, the pointed-to memory is not
+         *  touched in any way.  Managing the pointer is the user's
+         *  responsibility.
+         */
+        remove_return_type remove(const Tp& value); // in list.tcc
+
+        /**
+         *  Removes every element in the list for which the predicate
+         *  returns true.  Remaining elements stay in list order.  Note
+         *  that this function only erases the elements, and that if the
+         *  elements themselves are pointers, the pointed-to memory is
+         *  not touched in any way.  Managing the pointer is the user's
+         *  responsibility.
+         */
+        template<typename Predicate>
+        remove_return_type remove_if(Predicate); // in list.tcc
+
+        /**
+         *  For each consecutive set of elements with the same value,
+         *  remove all but the first one.  Remaining elements stay in
+         *  list order.  Note that this function only erases the
+         *  elements, and that if the elements themselves are pointers,
+         *  the pointed-to memory is not touched in any way.  Managing
+         *  the pointer is the user's responsibility.
+         */
+        remove_return_type unique(); // in list.tcc
+
+
+        /**
+         *  For each consecutive set of elements [first,last) that
+         *  satisfy predicate(first,i) where i is an iterator in
+         *  [first,last), remove all but the first one.  Remaining
+         *  elements stay in list order.  Note that this function only
+         *  erases the elements, and that if the elements themselves are
+         *  pointers, the pointed-to memory is not touched in any way.
+         *  Managing the pointer is the user's responsibility.
+         */
+        template<typename Binary_predicate>
+        remove_return_type unique(Binary_predicate); // in list.tcc
+
+
+        /**
+         *  Assumes that both rval and this list are sorted according to
+         *  operator<().  Merges elements of rval into this list in
+         *  sorted order, leaving rval empty when complete.  Elements in
+         *  this list precede elements in rval that are equal.
+         */
+        void merge(list&& rval); // in list.tcc
+
+        void merge(list & other)
+        {
+            merge(std::move(other));
+        }
+
+        /**
+         *  Assumes that both rval and this list are sorted according to
+         *  Strict_weak_ordering_comparator.  Merges elements of rval into this list
+         *  in sorted order, leaving rval empty when complete.  Elements
+         *  in this list precede elements in rval that are equivalent
+         *  according to Strict_weak_ordering_comparator().
+         */
+        template<typename Strict_weak_ordering_comparator>
+        void merge(list&& rval, Strict_weak_ordering_comparator comp); // in list.tcc
+
+        template<typename Strict_weak_ordering_comparator>
+        void
+        merge(list& other, Strict_weak_ordering_comparator comp)
+        {
+            merge(std::move(other), comp);
+        }
+
+        /**
+         *  Reverse the order of elements in the list in linear time.
+         */
+        void reverse() noexcept
+        {
+            this->m_impl.m_node.m_reverse();
+        }
+
+
+        /**
+         *  Sorts the elements of this list in O(N log(N)) time.  Equivalent
+         *  elements remain in list order.
+         */
+        void sort(); // in list.tcc
+
+        /**
+         *  Sorts the elements of this list in NlogN time.  Equivalent
+         *  elements remain in list order.
+         */
+        template<typename Strict_weak_ordering_comparator>
+        void sort(Strict_weak_ordering_comparator); // in list.tcc
+
+
+
 
 
 
@@ -711,16 +1147,21 @@ namespace gcc
         template<typename Input_iterator>
         void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type); // in list.tcc
 
+        // copy assigns val to all  elements in list
+        // if n > list then inserts remaining elements at tail
+        // if n < list then erases extra elements
         // Called by assigh(n, t) and the range assign when it turns out to be the same thing
         void m_fill_assign(size_type n, const value_type& val); // in list.tcc
 
+
+        // O(1)
         // Moves the elements from [first, last) before position
         void m_transfer(iterator position, iterator first, iterator last)
         {
             position.m_node->m_transfer(first.m_node, last.m_node);
         }
 
-        // Inplace cinstructs new element before position with value given
+        // Inplace constructs 1 new element before position with value given
         template<typename... Args>
         void m_insert(iterator position, Args&&... args)
         {
@@ -729,6 +1170,7 @@ namespace gcc
             this->m_inc_size(1);
         }
 
+
         // Erases element at posigion given
         void m_erase(iterator position) noexcept
         {
@@ -736,12 +1178,13 @@ namespace gcc
             position.m_node->m_unhook();
             node* _node = static_cast<node*> (position.m_node);
             //if >= c++11
+            // destroy contained element
             node_alloc_traits::destroy(m_get_node_allocator(), _node->m_valptr());
             // if < c++11
             // Tp_alloc_type(m_get_node_allocator()).destroy(node->m_valptr());
+            // deallocate node
             m_put_node(_node);
         }
-
 
 
 
@@ -760,24 +1203,28 @@ namespace gcc
 
 
 
-        void m_move_assign(list&& other, std::true_type) noexcept
+        // clear list
+        // m_impl.m_node->m_move_nodes
+        // if possible then move assign allocator
+        void m_move_assign(list&& rval, std::true_type) noexcept
         {
            this->clear();
-           this->m_move_nodes(std::move(other));
-           alloc_on_move(this->m_get_node_allocator(), other.m_get_node_allocator());
+           this->m_move_nodes(std::move(rval));
+           // if pocma is present in allocator then move assigns rval's allocator
+           alloc_on_move(this->m_get_node_allocator(), rval.m_get_node_allocator());
         }
 
-        void m_move_assign(list&& other, std::false_type)
+        void m_move_assign(list&& rval, std::false_type)
         {
-            if(other.m_get_node_allocator() == this->m_get_node_allocator())
+            if(rval.m_get_node_allocator() == this->m_get_node_allocator())
             {
-                m_move_assign(std::move(other), std::true_type());
+                m_move_assign(std::move(rval), std::true_type());
             }
             else
             {
                 // the rvalue's allocator cannot be moved or is not equal
-                // so we need to individually move each element
-                m_assign_dispatch(std::make_move_iterator(other.begin(), std::make_move_iterator(other.end()), std::false_type()));
+                // so we need to individually move each element in linear time
+                m_assign_dispatch(std::make_move_iterator(rval.begin(), std::make_move_iterator(rval.end()), std::false_type()));
             }
         }
 
@@ -785,6 +1232,117 @@ namespace gcc
     }; // list
 
 
+
+
+    //
+
+    /**
+     *  This is an equivalence relation.  It is linear in the size of
+     *  the lists.  Lists are considered equivalent if their sizes are
+     *  equal, and if corresponding elements compare equal.
+     */
+    template<typename Tp, typename Alloc>
+    inline bool operator==(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        if (a.size() != b.size())
+            return false;
+
+        using const_iterator = typename list<Tp, Alloc>::const_iterator;
+        const_iterator a_end = a.end();
+        const_iterator b_end = b.end();
+
+        const_iterator a_it = a.begin();
+        const_iterator b_it = b.begin();
+        while (a_it != a_end && b_it != b_end && *a_it == *b_it)
+        {
+            ++a_it;
+            ++b_it;
+        }
+
+        return a_it == a_end && b_it == b_end;
+    }
+
+
+    /**
+     *  This is a total ordering relation.  It is linear in the size of the
+     *  lists.  The elements must be comparable with @c <.
+     *
+     *  See std::lexicographical_compare() for how the determination is made.
+    */
+    template<typename Tp, typename Alloc>
+    inline bool operator<(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+    }
+
+    // Based on operator==
+    template<typename Tp, typename Alloc>
+    inline bool operator!=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        return !(a == b);
+    }
+
+    // Based on operator<
+    template<typename Tp, typename Alloc>
+    inline bool operator>(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        return b < a;
+    }
+
+    /// Based on operator<
+    template<typename Tp, typename Alloc>
+    inline bool operator<=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        return !(b < a);
+    }
+
+    /// Based on operator<
+    template<typename Tp, typename Alloc>
+    inline bool operator>=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    {
+        return !(a < b);
+    }
+
+
+    /// See std::list::swap().
+    template<typename Tp, typename Alloc>
+    inline void swap(list<Tp, Alloc>& a, list<Tp, Alloc>& b) noexcept(a.swap(b))
+    {
+        a.swap(b);
+    }
+
+
+
+    // Detect when distance is used to compute the size of the whole list.
+    template<typename Tp>
+    inline ptrdiff_t distance(gcc::list_iterator<Tp> first, gcc::list_iterator<Tp> last, std::input_iterator_tag tag)
+    {
+        using const_iter = gcc::list_const_iterator<Tp>;
+        return std::distance(const_iter(first), const_iter(last), tag);
+    }
+
+    template<typename Tp>
+    inline ptrdiff_t distance(gcc::list_const_iterator <Tp> first, gcc::list_const_iterator <Tp> last, std::input_iterator_tag __tag)
+    {
+        using sentinel = detail::list_node_header;
+        gcc::list_const_iterator<Tp> beyond = last;
+        ++beyond;
+
+        const bool whole = first == beyond;
+
+        if (__builtin_constant_p (whole) && whole)
+        {
+            return static_cast<const sentinel*> (last.m_node)->m_size;
+        }
+
+        ptrdiff_t n = 0;
+        while (first != last)
+        {
+            ++first;
+            ++n;
+        }
+        return n;
+    }
 }
 
 #endif // GCC_STL_LIST_H
