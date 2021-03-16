@@ -1306,7 +1306,7 @@ namespace gcc
 
     /// See std::list::swap().
     template<typename Tp, typename Alloc>
-    inline void swap(list<Tp, Alloc>& a, list<Tp, Alloc>& b) noexcept(noexcept(a.swap(b)))
+    inline void swap(list<Tp, Alloc>& a, list<Tp, Alloc>& b) NOEXCEPT_IF(noexcept(a.swap(b)))
     {
         a.swap(b);
     }

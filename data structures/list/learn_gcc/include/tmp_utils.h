@@ -5,6 +5,9 @@
 #ifndef TMP_UTILS_H
 #define TMP_UTILS_H
 
+
+#define NOEXCEPT_IF(...) noexcept(__VA_ARGS__)
+
 #include <iterator>
 #include <memory>
 
