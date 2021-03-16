@@ -509,11 +509,9 @@ namespace gcc
 	}
 
 
-	template<typename _Tp, typename _Alloc>
-	template <typename _StrictWeakOrdering>
-	void
-	list<_Tp, _Alloc>::
-	sort(_StrictWeakOrdering __comp)
+	template<typename Tp, typename Alloc>
+	template <typename Strict_weak_ordering>
+	void list<Tp, Alloc>::sort(Strict_weak_ordering comp)
 	{
 		// Do nothing if the list has length 0 or 1.
 		if(this->m_impl.m_node.m_next != &this->m_impl.m_node
@@ -533,7 +531,7 @@ namespace gcc
 							counter != fill && !counter->empty();
 							++counter)
 					{
-						counter->merge(carry, __comp);
+						counter->merge(carry, comp);
 						carry.swap(*counter);
 					}
 					carry.swap(*counter);
@@ -545,7 +543,7 @@ namespace gcc
 
 				for(counter = tmp + 1; counter != fill; ++counter)
 				{
-					counter->merge(*(counter - 1), __comp);
+					counter->merge(*(counter - 1), comp);
 				}
 				swap(*(fill - 1));
 			}
