@@ -54,7 +54,7 @@ namespace gcc
             return *this;
         }
 
-        self& operator++(int) noexcept
+        self operator++(int) noexcept
         {
             self old = *this;
             m_node = m_node->m_next;
@@ -136,7 +136,7 @@ namespace gcc
             return *this;
         }
 
-        self& operator++(int) noexcept
+        self operator++(int) noexcept
         {
             self old = *this;
             m_node = m_node->m_next;
