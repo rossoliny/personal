@@ -485,6 +485,8 @@ namespace gcc
          */
         iterator end() noexcept
         {
+			detail::list_node_base n = (detail::list_node_base) this->m_impl.m_node;
+			gcc::list_node<Tp>* nn = dynamic_cast<gcc::list_node<Tp>*> (&n);
             return iterator(&this->m_impl.m_node);
         }
 

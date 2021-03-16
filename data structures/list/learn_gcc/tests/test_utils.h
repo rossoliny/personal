@@ -19,7 +19,14 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 	REQUIRE(gcc_list.max_size() == std_list.max_size());
 
 	REQUIRE(*gcc_list.begin() == *std_list.begin());
-	REQUIRE(*gcc_list.end() == *std_list.end());
+
+	auto v1 = gcc_list.end();
+	auto v2 = std_list.end();
+
+	auto v1d = *v1;
+	auto v2d = *v2;
+
+	REQUIRE(v1d == v2d);
 
 	REQUIRE(*gcc_list.cbegin() == *std_list.cbegin());
 	REQUIRE(*gcc_list.cend() == *std_list.cend());
@@ -35,6 +42,7 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 
 	while(act != gcc_list.end())
 	{
+
 		REQUIRE(*act == *exp);
 
 		++act;

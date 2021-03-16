@@ -28,9 +28,16 @@ namespace gcc
         {
         }
 
+        int ig = 0;
         explicit list_iterator(detail::list_node_base* node) noexcept
                 : m_node(node)
         {
+        	int i;
+        	for(i = 0; i < 23; i++)
+			{
+        		i *= i;
+			}
+        	ig = i;
         }
 
         self m_const_cast() const noexcept
@@ -105,9 +112,16 @@ namespace gcc
         {
         }
 
+        int ig = 0;
         explicit list_const_iterator(const detail::list_node_base* node) noexcept
                 : m_node(node)
         {
+			int i;
+			for(i = 0; i < 23; i++)
+			{
+				i *= i;
+			}
+			ig = i;
         }
 
         list_const_iterator(const iterator& other) noexcept

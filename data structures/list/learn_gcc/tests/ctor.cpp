@@ -23,20 +23,13 @@ TEST_CASE("default ctor", tag)
 
 TEST_CASE("fill ctor", tag)
 {
-	int n = 100;
-
-	SECTION("default constructed val")
+	SECTION("1")
 	{
-		gcc_list<string> actual(n);
-		std_list<string> expected(n);
+		int n = 11;
+		gcc_list<string> actual(n, "isa");
+		std_list<string> expected(n, "isa");
 
 		LISTS_REQUIRE_EQUAL(actual, expected);
 	}
-//	SECTION("copy constructed val")
-//	{
-//		gcc_list<string> act(n);
-//		std_list<string> exp(n);
-//
-//		LISTS_REQUIRE_EQUAL(act, exp);
-//	}
+
 }
