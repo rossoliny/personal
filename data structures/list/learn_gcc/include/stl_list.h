@@ -379,7 +379,7 @@ namespace gcc
          *
          *  Whether the allocator is copied depends on the allocator traits.
          */
-        list& operator=(const list& other) // impl in list.tcc
+        list& operator=(const list& other); // impl in list.tcc
 
         /**
          *
