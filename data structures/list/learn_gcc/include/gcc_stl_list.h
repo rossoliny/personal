@@ -22,11 +22,11 @@ namespace gcc
     class list_base
     {
     protected:
-        using Tp_alloc_type = typename std::allocator_traits<Alloc>::template rebind_alloc<Tp>;
-        using Tp_alloc_traits = std::allocator_traits<Tp_alloc_type>;
+        using Tp_alloc_type = typename gcc::allocator_traits<Alloc>::template rebind_alloc<Tp>;
+        using Tp_alloc_traits = gcc::allocator_traits<Tp_alloc_type>;
 
         using node_alloc_type = typename Tp_alloc_traits::template rebind_alloc<list_node<Tp>>;
-        using node_alloc_traits = std::allocator_traits<node_alloc_type>;
+        using node_alloc_traits = gcc::allocator_traits<node_alloc_type>;
 
         // if not inline version
         static size_t s_distance(const detail::list_node_base *first, const detail::list_node_base *last)

@@ -145,16 +145,14 @@ namespace gcc
 	template<typename Tp, typename Alloc>
     list<Tp, Alloc>& list<Tp, Alloc>::operator=(const list<Tp, Alloc>& other)
     {
-    	std::intptr_t other_addr = (intptr_t) std::addressof(other);
-    	std::intptr_t this_addr = (intptr_t) this;
-        if(this_addr != other_addr)
-        {
-            if(list::node_alloc_traits::propagate_on_container_copy_assignment::value)
+		if(this != std::addressof(other))
+		{
+            if(base::node_alloc_traits::propagate_on_container_copy_assignment::value)
             {
                 auto& this_alloc = this->m_get_node_allocator();
                 auto& other_alloc = other.m_get_node_allocator();
 
-                if (!list::node_alloc_traits::is_always_equal::value && this_alloc != other_alloc)
+                if(!base::node_alloc_traits::is_always_equal::value && this_alloc != other_alloc)
                 {
                     // replacement allocator cannot free existing storage
                     clear();

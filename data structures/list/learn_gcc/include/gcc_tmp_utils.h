@@ -13,6 +13,30 @@
 
 namespace gcc {
 
+
+	template<typename Alloc, typename = typename Alloc::value_type>
+	struct allocator_traits : std::allocator_traits<Alloc>
+	{
+		typedef Alloc allocator_type;
+
+		static constexpr bool s_propagate_on_copy_assign()
+		{
+			return std::allocator_traits<Alloc>::propagate_on_container_copy_assignment::value;
+		}
+
+		static constexpr bool s_always_equal()
+		{
+			return std::allocator_traits<Alloc>::is_always_equal::value;
+		}
+
+		template<typename Tp>
+		struct rebind
+		{
+			typedef typename std::allocator_traits<Alloc>::template rebind_alloc<Tp> other;
+		};
+	};
+
+
     template<typename Input_iterator>
     using require_input_iter =
             typename std::enable_if<
