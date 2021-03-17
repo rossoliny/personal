@@ -333,7 +333,8 @@ namespace gcc
          *  The newly-created list uses a copy of the allocation object used
          *  by other (unless the allocator traits dictate a different object).
          */
-        list(const list& other)
+		//The copy constructor will copy construct the Allocator through the select_on_container_copy_construction() function.
+		list(const list& other)
             : base(node_alloc_traits::select_on_container_copy_construction(other.m_get_node_allocator()))
         {
 			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
@@ -353,6 +354,7 @@ namespace gcc
          *  instance. The contents of the moved instance are a valid, but
          *  unspecified list.
          */
+         // The move constructor will move construct the Allocator. Directly, without a select_on_container_move_construnction() or similar.
         list(list&&) = default;
 
 		/**
@@ -392,6 +394,8 @@ namespace gcc
          *
          *  Whether the allocator is copied depends on the allocator traits.
          */
+         // The copy assignment operator will copy assign the Allocator if propagate_on_container_copy_assignment is std::true_type .
+         // There is no select_on_container_copy_assignment() like in the copy constructor.
         list& operator=(const list& other); // impl in list.tcc
 
         /**
@@ -402,11 +406,12 @@ namespace gcc
          *
          *  Whether the allocator is moved depends on the allocator traits.
          */
-        list& operator=(list&& rval)
-                noexcept(node_alloc_traits::propagate_on_container_move_assignment::value || node_alloc_traits::is_always_equal::value)
+		// The move assignment operator will move assign the Allocator if propagate_on_container_move_assignment is std::true_type (not the default).
+		list& operator=(list&& rval)
+                noexcept(base::node_alloc_traits::propagate_on_container_move_assignment::value || base::node_alloc_traits::is_always_equal::value)
         {
             constexpr bool move_storage =
-                    node_alloc_traits::propagate_on_container_move_assignment::value || node_alloc_traits::is_always_equal::value;
+                    base::node_alloc_traits::propagate_on_container_move_assignment::value || base::node_alloc_traits::is_always_equal::value;
 
             m_move_assign(std::move(rval), gcc::bool_constant<move_storage>());
             return *this;
@@ -868,6 +873,7 @@ namespace gcc
             other.m_set_size(this->m_get_size());
             this->m_set_size(other_size);
 
+			// Swap will swap the Allocator if propagate_on_container_swap is std::true_type (not the default).
             alloc_on_swap(this->m_get_node_allocator(), other.m_get_node_allocator());
         }
 
@@ -1158,8 +1164,8 @@ namespace gcc
         }
 
         // Called by range assign
-        // copies min(this.size(), other.size()) elements into container by calling Tp's copy ctor
-        // and if this is shorter than other then append remaining elements
+        // copies/moves min(this.size(), other.size()) elements into container by calling Tp's copy/move assign
+        // if this.size() < other.size() then append remaining elements by copy/move ctor
         template<typename Input_iterator>
         void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type); // in list.tcc
 
@@ -1230,7 +1236,8 @@ namespace gcc
            alloc_on_move(this->m_get_node_allocator(), rval.m_get_node_allocator());
         }
 
-        void m_move_assign(list&& rval, std::false_type)
+		// The move assignment operator will move assign the Allocator if propagate_on_container_move_assignment is std::true_type (not the default).
+		void m_move_assign(list&& rval, std::false_type)
         {
             if(rval.m_get_node_allocator() == this->m_get_node_allocator())
             {

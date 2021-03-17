@@ -142,6 +142,8 @@ namespace gcc
 
     // list public interface
 
+	// The copy assignment operator will copy assign the Allocator if propagate_on_container_move_assignment is std::false_type (not the default).
+	// There is no select_on_container_copy_assignment() like in the copy constructor.
 	template<typename Tp, typename Alloc>
     list<Tp, Alloc>& list<Tp, Alloc>::operator=(const list<Tp, Alloc>& other)
     {
