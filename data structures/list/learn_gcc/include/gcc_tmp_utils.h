@@ -13,7 +13,6 @@
 
 namespace gcc {
 
-
     template<typename Input_iterator>
     using require_input_iter =
             typename std::enable_if<

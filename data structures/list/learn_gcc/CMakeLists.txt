@@ -12,6 +12,7 @@ set(TEST_SRC_CATCH
         tests/tests_driver.cpp
 
         tests/ctor.cpp
+        tests/operator=.cpp
     )
 
 #find_package(Catch2 #[[REQUIRED]])

@@ -11,7 +11,6 @@
 #define tag "[constructors] [constructor] [ctor]"
 
 using namespace std;
-const vector<string> input = {"list", "unit", "test", "learn",  "gcc std::list", "ab", "cd", "ef", "gh", "ij", "kl", "mnop", "qrstuv", "wxy", "z"};
 
 TEST_CASE("default ctor", tag)
 {
@@ -45,8 +44,8 @@ TEST_CASE("fill ctor", tag)
 TEST_CASE("range ctor", tag)
 {
 
-	gcc_list<string> act(input.begin(), input.end());
-	std_list<string> exp(input.begin(), input.end());
+	gcc_list<string> act(input_string.begin(), input_string.end());
+	std_list<string> exp(input_string.begin(), input_string.end());
 
 	LISTS_REQUIRE_EQUAL(act, exp);
 }
@@ -56,8 +55,8 @@ TEST_CASE("copy ctor", tag)
 {
 	SECTION("with default allocator")
 	{
-		gcc_list<string> act_inp(input.begin(), input.end());
-		std_list<string> exp_inp(input.begin(), input.end());
+		gcc_list<string> act_inp(input_string.begin(), input_string.end());
+		std_list<string> exp_inp(input_string.begin(), input_string.end());
 
 		gcc_list<string> act(act_inp);
 		std_list<string> exp(exp_inp);
@@ -66,8 +65,8 @@ TEST_CASE("copy ctor", tag)
 	}
 	SECTION("with given allocator")
 	{
-		gcc_list<string> act_inp(input.begin(), input.end());
-		std_list<string> exp_inp(input.begin(), input.end());
+		gcc_list<string> act_inp(input_string.begin(), input_string.end());
+		std_list<string> exp_inp(input_string.begin(), input_string.end());
 
 		std::allocator<void> alloc;
 		gcc_list<string> act(act_inp, alloc);
@@ -82,8 +81,8 @@ TEST_CASE("move ctor", tag)
 	SECTION("with default allocator argument")
 	{
 
-		gcc_list<string> act_inp(input.begin(), input.end());
-		std_list<string> exp_inp(input.begin(), input.end());
+		gcc_list<string> act_inp(input_string.begin(), input_string.end());
+		std_list<string> exp_inp(input_string.begin(), input_string.end());
 
 		gcc_list<string> act(std::move(act_inp));
 		std_list<string> exp(std::move(exp_inp));

@@ -141,17 +141,19 @@ namespace gcc
     }
 
     // list public interface
-    template<typename Tp, typename Alloc>
+
+
+	template<typename Tp, typename Alloc>
     list<Tp, Alloc>& list<Tp, Alloc>::operator=(const list<Tp, Alloc>& other)
     {
         if(this != std::addressof(other))
         {
-            if(this->node_alloc_traits::propagate_on_container_copy_assignment::value)
+            if(list::node_alloc_traits::propagate_on_container_copy_assignment::value)
             {
                 auto& this_alloc = this->m_get_node_allocator();
                 auto& other_alloc = other.m_get_node_allocator();
 
-                if (!this->node_alloc_traits::is_always_equal::value && this_alloc != other_alloc)
+                if (!list::node_alloc_traits::is_always_equal::value && this_alloc != other_alloc)
                 {
                     // replacement allocator cannot free existing storage
                     clear();
