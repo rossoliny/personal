@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 project(gcc_list)
 set(CMAKE_CXX_STANDARD 11)
 
-add_compile_options(-Wno-gnu)
+add_compile_options(-Wno-gnu -O0)
 
 include_directories(include)
 
