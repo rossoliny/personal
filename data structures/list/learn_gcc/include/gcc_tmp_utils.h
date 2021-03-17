@@ -23,18 +23,18 @@ namespace gcc {
                         >::value
                 >::type;
 
+    // if iterator is noexcept_move_constructible or only_move_type then make move_iterator else iterator
     template
             <
             typename Iterator,
             typename Return_type =
             typename std::conditional<
-                    !std::is_nothrow_move_constructible<Iterator>::value &&
-                    std::is_copy_constructible<Iterator>::value,
-                    Iterator,
-                    std::move_iterator < Iterator>
-            > ::type
-    >
-
+            			!std::is_nothrow_move_constructible<Iterator>::value &&
+            			std::is_copy_constructible<Iterator>::value,
+            			Iterator,
+            			std::move_iterator < Iterator>
+                    > ::type
+            >
     inline constexpr Return_type make_move_iterator_if_noexcept(Iterator i)
     {
         return _ReturnType(i);

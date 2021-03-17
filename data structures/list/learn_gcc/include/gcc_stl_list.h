@@ -152,14 +152,14 @@ namespace gcc
             // else caller must move individual elements.
         }
 
-        // Used when allocator !is_always_equal.
+        // Used when allocator is_always_equal is true.
         //
         list_base(node_alloc_type&& impl, list_base&& other)
             : m_impl(std::move(impl), std::move(other.m_impl)) // calls allocator_type's ctor and passes args there
         {
         }
 
-        // Used when allocator !is_always_equal.
+        // Used when allocator is_always_equal is false.
         list_base(node_alloc_type&& impl)
             : m_impl(std::move(impl)) // calls allocator_type's ctor and passes args there
         {
@@ -261,14 +261,17 @@ namespace gcc
         
         // private constructors
 	private:
+    	// optimize when all allocator instance of provided type are always equal (stateless)
 		list(list&& rval, const allocator_type& alloc, std::true_type) noexcept
 				: base(node_alloc_type(alloc), std::move(rval))
 		{
 		}
 
+		// when allocator are not always equal
 		list(list&& rval, const allocator_type& alloc, std::false_type)
 				: base(node_alloc_type(alloc))
 		{
+			// in case provided allocators are equal then move is O(N)
 			if(rval.m_get_node_allocator() == this->m_get_node_allocator())
 			{
 				this->m_move_nodes(std::move(rval));
@@ -893,7 +896,7 @@ namespace gcc
         void splice(const_iterator position, list&& rval) noexcept
         {
             if (!rval.empty()) {
-                m_check_equal_allocators(rval);
+                m_check_equal_allocators(rval); // empty
 
                 this->m_transfer(position.m_const_cast(), rval.begin(), rval.end());
 

@@ -107,8 +107,9 @@ TEST_CASE("move ctor", tag)
 
 TEST_CASE("initializer_list ctor", tag)
 {
-	gcc::list<std::string> actual = {"list", "unit", "test", "learn",  "gcc std::list"};
-	std::list<std::string> expected = {"list", "unit", "test", "learn", "gcc std::list"};
+	initializer_list<string> initialize_list = {"list", "unit", "test", "learn", "gcc std::list"};
+	gcc::list<std::string> actual = initialize_list;
+	std::list<std::string> expected = initialize_list;
 
 	LISTS_REQUIRE_EQUAL(actual, expected);
 }
