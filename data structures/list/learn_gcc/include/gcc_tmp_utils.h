@@ -52,8 +52,7 @@ namespace gcc {
             typename Iterator,
             typename Return_type =
             typename std::conditional<
-            			!std::is_nothrow_move_constructible<Iterator>::value &&
-            			std::is_copy_constructible<Iterator>::value,
+            			!std::is_nothrow_move_constructible<Iterator>::value && std::is_copy_constructible<Iterator>::value,
             			Iterator,
             			std::move_iterator < Iterator>
                     > ::type
@@ -67,16 +66,16 @@ namespace gcc {
     // returning a constant iterator when we don't want to move.
     template
             <
-            typename Tp,
+            typename Iterator_maybe_ptr,
             typename Return_type =
             typename std::conditional<
-                    !std::is_nothrow_move_constructible<Tp>::value && std::is_copy_constructible<Tp>::value,
-                    const Tp *,
-                    std::move_iterator < Tp * >
+                    !std::is_nothrow_move_constructible<Iterator_maybe_ptr>::value && std::is_copy_constructible<Iterator_maybe_ptr>::value,
+                    const Iterator_maybe_ptr*,
+                    std::move_iterator < Iterator_maybe_ptr* >
                 > ::type
             >
 
-    inline constexpr Return_type make_move_iterator_if_noexcept(Tp *i)
+    inline constexpr Return_type make_move_iterator_if_noexcept(Iterator_maybe_ptr* i)
     {
         return _ReturnType(i);
     }
@@ -85,7 +84,7 @@ namespace gcc {
     template<typename Alloc, bool = std::is_empty<Alloc>::value>
     struct alloc_not_equal
     {
-        static bool _so_do_it(const Alloc &, const Alloc &)
+        static bool _so_do_it(const Alloc&, const Alloc&)
         {
             return false;
         }
@@ -95,7 +94,7 @@ namespace gcc {
     template<typename Alloc>
     struct alloc_not_equal<Alloc, false>
     {
-        static bool _so_do_it(const Alloc &one, const Alloc &two)
+        static bool _so_do_it(const Alloc& one, const Alloc& two)
         {
             return one != two;
         }
