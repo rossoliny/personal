@@ -57,8 +57,9 @@ namespace gcc
 
             list_impl(list_impl&&) = default;
 
-            list_impl(node_alloc_type&& rval_base, list_impl&& rval)
-                : node_alloc_type(std::move(rval_base), std::move(rval))
+            list_impl(node_alloc_type&& rval_alloc, list_impl&& rval)
+                : node_alloc_type(std::move(rval_alloc))
+				, m_node(std::move(rval.m_node))
             {
             }
 
@@ -257,7 +258,30 @@ namespace gcc
             // m_get_size returns super->m_impl.m_node.m_size
             return this->m_get_size();
         }
+        
+        // private constructors
+	private:
+		list(list&& rval, const allocator_type& alloc, std::true_type) noexcept
+				: base(node_alloc_type(alloc), std::move(rval))
+		{
+		}
 
+		list(list&& rval, const allocator_type& alloc, std::false_type)
+				: base(node_alloc_type(alloc))
+		{
+			if(rval.m_get_node_allocator() == this->m_get_node_allocator())
+			{
+				this->m_move_nodes(std::move(rval));
+			}
+			else
+			{
+				insert(
+						begin(),
+						gcc::make_move_iterator_if_noexcept(rval.begin()),
+						gcc::make_move_iterator_if_noexcept(rval.end())
+				);
+			}
+		}
 
     public:
 
@@ -277,18 +301,30 @@ namespace gcc
         explicit list(size_type n, const allocator_type& alloc = allocator_type())
             : base(node_alloc_type(alloc))
         {
-            m_default_initialize(n);
+			m_fill_default_initialize(n);
         }
 
         /**
          *
-         *  This constructor fills the list with n copies of value.
+         *  This constructor fills the list with n emplaced copies of value.
          */
         explicit list(size_type n, const value_type& val, const allocator_type& alloc = allocator_type())
             : base(node_alloc_type(alloc))
         {
-            m_fill_initialize(n, val);
+			m_fill_copy_initialize(n, val);
         }
+
+		/**
+		 *  Create a list consisting of emplaced copies of the elements from
+		 *  [first, last).  This is linear in N (where N is
+		 *  std::distance(first, last)).
+		 */
+		template<typename Input_iterator, typename = gcc::require_input_iter<Input_iterator>>
+		list(Input_iterator first, Input_iterator last, const allocator_type& alloc = allocator_type())
+				: base(node_alloc_type(alloc))
+		{
+			m_range_initialize_dispatch(first, last, std::false_type());
+		}
 
         /**
          *  The newly-created list uses a copy of the allocation object used
@@ -300,6 +336,15 @@ namespace gcc
 			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
         }
 
+		/**
+		 * copy constructor with allocator provided
+		 */
+		list(const list& other, const allocator_type& alloc)
+				: base(node_alloc_type(alloc))
+		{
+			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
+		}
+
         /**
          *  The newly-created list contains the exact contents of the moved
          *  instance. The contents of the moved instance are a valid, but
@@ -307,6 +352,14 @@ namespace gcc
          */
         list(list&&) = default;
 
+		/**
+		 * move constructor with allocator provided
+		 */
+		list(list&& rval, const allocator_type& alloc) NOEXCEPT_IF(noexcept(node_alloc_traits::is_always_equal::value))
+				: list(std::move(rval), alloc, typename node_alloc_traits::is_always_equal{})
+		{
+		}
+		
         /**
          *  Create a list consisting of copies of the elements in the
          *  initializer_list il.  This is linear in il.size().
@@ -316,52 +369,9 @@ namespace gcc
         {
 			m_range_initialize_dispatch(il.begin(), il.end(), std::false_type());
         }
-
-        list(const list& other, const allocator_type& alloc)
-            : base(node_alloc_type(alloc))
-        {
-			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
-        }
-    private:
-        list(list&& rval, const allocator_type& alloc, std::true_type) noexcept
-            : base(node_alloc_type(alloc), std::move(rval))
-        {
-        }
-
-        list(list&& rval, const allocator_type& alloc, std::false_type)
-            : base(node_alloc_type(alloc))
-        {
-            if(rval.m_get_node_allocator() == this->m_get_node_allocator())
-            {
-                this->m_move_nodes(std::move(rval));
-            }
-            else
-            {
-                insert(
-                        begin(),
-                        gcc::make_move_iterator_if_noexcept(rval.begin()),
-                        gcc::make_move_iterator_if_noexcept(rval.end())
-                      );
-            }
-        }
-
+        
+        
     public:
-        list(list&& rval, const allocator_type& alloc) noexcept(node_alloc_traits::is_always_equal::value)
-            : list(std::move(rval), alloc, typename node_alloc_traits::is_always_equal{})
-        {
-        }
-
-        /**
-         *  Create a list consisting of copies of the elements from
-         *  [first, last).  This is linear in N (where N is
-         *  std::distance(first, last)).
-         */
-        template<typename Input_iterator, typename = gcc::require_input_iter<Input_iterator>>
-        list(Input_iterator first, Input_iterator last, const allocator_type& alloc = allocator_type())
-                : base(node_alloc_type(alloc))
-        {
-			m_range_initialize_dispatch(first, last, std::false_type());
-        }
 
         /**
          *  No explicit dtor needed as the $base dtor takes care of
@@ -1084,11 +1094,14 @@ namespace gcc
         // Called by range constructor
         // seems to be used only until c++11
         // seems to be kind a fix of some corner cases
+
+        /*
         template<typename Integer>
         void m_initialize_dispatch(Integer n, Integer x, std::true_type)
         {
-            m_fill_initialize(static_cast<size_type> (n), x);
+			m_fill_copy_initialize(static_cast<size_type> (n), x);
         }
+         */
 
         // Called by range constructor
         template<typename Input_iterator>
@@ -1106,7 +1119,7 @@ namespace gcc
         // O(N)
         // Called by list(n,v,a), and the range constructor when it turns out
         // to be the same thing.
-        void m_fill_initialize(size_type n, const value_type& x)
+        void m_fill_copy_initialize(size_type n, const value_type& x)
         {
             for(; n; --n)
             {
@@ -1115,8 +1128,8 @@ namespace gcc
         }
 
         // if >= c++11
-        // Called by list(n)
-        void m_default_initialize(size_type n)
+        // only called by list(size_type n), fill-ctor with no provided val
+        void m_fill_default_initialize(size_type n)
         {
             for(; n; --n)
             {

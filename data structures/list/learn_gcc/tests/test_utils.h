@@ -4,8 +4,9 @@
 
 #ifndef _TEST_UTILS_H
 #define _TEST_UTILS_H
-#define CATCH_CONFIG_ENABLE_BENCHMARKING
+//#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "catch2/catch.hpp"
+
 #include <list>
 #include "gcc_list"
 
