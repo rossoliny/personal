@@ -297,7 +297,7 @@ namespace gcc
         list(const list& other)
             : base(node_alloc_traits::select_on_container_copy_construction(other.m_get_node_allocator()))
         {
-            m_initialize_dispatch(other.begin(), other.end(), std::false_type());
+			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
         }
 
         /**
@@ -314,13 +314,13 @@ namespace gcc
         list(std::initializer_list<value_type> il, const allocator_type& alloc = allocator_type())
             : base(node_alloc_type(alloc))
         {
-            m_initialize_dispatch(il.begin(), il.end(), std::false_type());
+			m_range_initialize_dispatch(il.begin(), il.end(), std::false_type());
         }
 
         list(const list& other, const allocator_type& alloc)
             : base(node_alloc_type(alloc))
         {
-            m_initialize_dispatch(other.begin(), other.end(), std::false_type());
+			m_range_initialize_dispatch(other.begin(), other.end(), std::false_type());
         }
     private:
         list(list&& rval, const allocator_type& alloc, std::true_type) noexcept
@@ -360,7 +360,7 @@ namespace gcc
         list(Input_iterator first, Input_iterator last, const allocator_type& alloc = allocator_type())
                 : base(node_alloc_type(alloc))
         {
-            m_initialize_dispatch(first, last, std::false_type());
+			m_range_initialize_dispatch(first, last, std::false_type());
         }
 
         /**
@@ -485,8 +485,6 @@ namespace gcc
          */
         iterator end() noexcept
         {
-			detail::list_node_base n = (detail::list_node_base) this->m_impl.m_node;
-			gcc::list_node<Tp>* nn = dynamic_cast<gcc::list_node<Tp>*> (&n);
             return iterator(&this->m_impl.m_node);
         }
 
@@ -1094,7 +1092,7 @@ namespace gcc
 
         // Called by range constructor
         template<typename Input_iterator>
-        void m_initialize_dispatch(Input_iterator first, Input_iterator last, std::false_type)
+        void m_range_initialize_dispatch(Input_iterator first, Input_iterator last, std::false_type)
         {
             for(; first != last; ++first)
             {

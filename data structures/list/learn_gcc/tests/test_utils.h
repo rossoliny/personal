@@ -4,6 +4,7 @@
 
 #ifndef _TEST_UTILS_H
 #define _TEST_UTILS_H
+#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "catch2/catch.hpp"
 #include <list>
 #include "gcc_list"
@@ -19,23 +20,16 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 	REQUIRE(gcc_list.max_size() == std_list.max_size());
 
 	REQUIRE(*gcc_list.begin() == *std_list.begin());
-
-	auto v1 = gcc_list.end();
-	auto v2 = std_list.end();
-
-	auto v1d = *v1;
-	auto v2d = *v2;
-
-	REQUIRE(v1d == v2d);
+	REQUIRE(*--gcc_list.end() == *--std_list.end());
 
 	REQUIRE(*gcc_list.cbegin() == *std_list.cbegin());
-	REQUIRE(*gcc_list.cend() == *std_list.cend());
+	REQUIRE(*--gcc_list.cend() == *--std_list.cend());
 
 	REQUIRE(*gcc_list.rbegin() == *std_list.rbegin());
-	REQUIRE(*gcc_list.rend() == *std_list.rend());
+	REQUIRE(*++gcc_list.rend() == *++std_list.rend());
 
 	REQUIRE(*gcc_list.crbegin() == *std_list.crbegin());
-	REQUIRE(*gcc_list.crend() == *std_list.crend());
+	REQUIRE(*++gcc_list.crend() == *++std_list.crend());
 
 	auto act = gcc_list.begin();
 	auto exp = std_list.begin();

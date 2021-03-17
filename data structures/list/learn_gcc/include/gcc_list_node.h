@@ -121,6 +121,7 @@ namespace gcc
 
         private:
 
+        public:
             // implicitly casts this into to list_node_base and return pointer;
             list_node_base* m_base()
             {
