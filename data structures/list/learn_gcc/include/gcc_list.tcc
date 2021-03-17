@@ -159,7 +159,7 @@ namespace gcc
                     // replacement allocator cannot free existing storage
                     clear();
                 }
-                alloc_on_copy(this_alloc, other_alloc);
+				copy_alloc_on_container_copy_assignment(this_alloc, other_alloc);
             }
         }
         m_assign_dispatch(other.begin(), other.end(), std::false_type());

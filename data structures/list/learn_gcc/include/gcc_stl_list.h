@@ -874,7 +874,7 @@ namespace gcc
             this->m_set_size(other_size);
 
 			// Swap will swap the Allocator if propagate_on_container_swap is std::true_type (not the default).
-            alloc_on_swap(this->m_get_node_allocator(), other.m_get_node_allocator());
+			swap_alloc_on_container_swap(this->m_get_node_allocator(), other.m_get_node_allocator());
         }
 
 
@@ -1233,7 +1233,7 @@ namespace gcc
            this->clear();
            this->m_move_nodes(std::move(rval));
            // if pocma is present in allocator then move assigns rval's allocator
-           alloc_on_move(this->m_get_node_allocator(), rval.m_get_node_allocator());
+			move_alloc_on_container_move_assignment(this->m_get_node_allocator(), rval.m_get_node_allocator());
         }
 
 		// The move assignment operator will move assign the Allocator if propagate_on_container_move_assignment is std::true_type (not the default).
