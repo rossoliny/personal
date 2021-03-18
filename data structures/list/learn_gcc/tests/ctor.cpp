@@ -114,8 +114,31 @@ TEST_CASE("move ctor", tag)
 TEST_CASE("initializer_list ctor", tag)
 {
 	initializer_list<string> initialize_list = {"list", "unit", "test", "learn", "gcc std::list"};
-	gcc::list<std::string> actual = initialize_list;
-	std::list<std::string> expected = initialize_list;
+	gcc_list<std::string> actual = initialize_list;
+	std_list<std::string> expected = initialize_list;
 
 	LISTS_REQUIRE_EQUAL(actual, expected);
+}
+
+TEST_CASE("clear", "[clear]")
+{
+	SECTION("int")
+	{
+		CREATE_LISTS_OF_INT(res);
+
+		gcc_res.clear();
+		std_res.clear();
+
+		LISTS_REQUIRE_EQUAL(gcc_res, std_res);
+	}
+	SECTION("string")
+	{
+		gcc_list<string> act(vec_str_1.begin(), vec_str_1.end());
+		std_list<string> exp(vec_str_1.begin(), vec_str_1.end());
+
+		act.clear();
+		exp.clear();
+
+		LISTS_REQUIRE_EQUAL(act, exp);
+	}
 }
