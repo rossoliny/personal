@@ -452,7 +452,7 @@ namespace gcc
                 typename = gcc::require_input_iter<Input_iterator>>
         void assign(Input_iterator first, Input_iterator last)
         {
-            m_assign_dispatch(first, last, std::false_type());
+			m_range_assign(first, last, std::false_type());
         }
 
 
@@ -464,7 +464,7 @@ namespace gcc
         void
         assign(std::initializer_list<value_type> il)
         {
-            this->m_assign_dispatch(il.begin(), il.end(), std::false_type());
+			this->m_range_assign(il.begin(), il.end(), std::false_type());
         }
 
 
@@ -1159,7 +1159,7 @@ namespace gcc
         // Called by range assign
         // seems also to be used only until c++11
         template<typename Integer>
-        void m_assign_dispatch(Integer n, Integer val, std::true_type)
+        void m_range_assign(Integer n, Integer val, std::true_type)
         {
             m_fill_assign(n, val);
         }
@@ -1168,7 +1168,7 @@ namespace gcc
         // copies/moves min(this.size(), other.size()) elements into container by calling Tp's copy/move assign
         // if this.size() < other.size() then append remaining elements by copy/move ctor
         template<typename Input_iterator>
-        void m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type); // in list.tcc
+        void m_range_assign(Input_iterator first, Input_iterator last, std::false_type); // in list.tcc
 
         // copy assigns val to all  elements in list
         // if n > list then inserts remaining elements at tail
@@ -1226,6 +1226,7 @@ namespace gcc
 
 
 
+        // O(N) to clear, O(1) to move
         // clear list
         // m_impl.m_node->m_move_nodes
         // if possible then move assign allocator
@@ -1246,9 +1247,9 @@ namespace gcc
             }
             else
             {
-                // the rvalue's allocator cannot be moved or is not equal
+                // the rvalue's allocator cannot be moved or is not equal (this alloc cannot free mem allocated by rvalue's allocator)
                 // so we need to individually move each element in linear time
-                m_assign_dispatch(std::make_move_iterator(rval.begin(), std::make_move_iterator(rval.end()), std::false_type()));
+				m_range_assign(std::make_move_iterator(rval.begin(), std::make_move_iterator(rval.end()), std::false_type()));
             }
         }
 

@@ -23,17 +23,36 @@ TEST_CASE("range assing", tag)
 
 TEST_CASE("fill assign", tag)
 {
-	gcc_list<int> act = rand_ints;
-	std_list<int> exp = rand_ints;
+	SECTION("short << long")
+	{
+		gcc_list<int> act = rand_ints;
+		std_list<int> exp = rand_ints;
 
-	CHECK_LISTS_NEQ(act, exp);
+		CHECK_LISTS_NEQ(act, exp);
 
-	size_t n =rand() % 100 + 1;
-	int val = rand() + 1;
-	act.assign(n, val);
-	exp.assign(n, val);
+		size_t n = rand() % (100 - act.size() + 1) + act.size();
+		int val = rand() + 1;
 
-	LISTS_REQUIRE_EQUAL(act, exp);
+		act.assign(n, val);
+		exp.assign(n, val);
+
+		LISTS_REQUIRE_EQUAL(act, exp);
+	}
+	SECTION("long << short")
+	{
+		gcc_list<int> act = rand_ints_L;
+		std_list<int> exp = rand_ints_L;
+
+		CHECK_LISTS_NEQ(act, exp);
+
+		size_t n = rand() % (act.size()) + 1;
+		int val = rand() + 1;
+
+		act.assign(n, val);
+		exp.assign(n, val);
+
+		LISTS_REQUIRE_EQUAL(act, exp);
+	}
 }
 
 TEST_CASE("initializer_list assign", tag)

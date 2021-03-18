@@ -58,7 +58,7 @@ namespace gcc
 
     template<typename Tp, typename Alloc>
     template<typename Input_iterator>
-    void list<Tp, Alloc>::m_assign_dispatch(Input_iterator first, Input_iterator last, std::false_type)
+    void list<Tp, Alloc>::m_range_assign(Input_iterator first, Input_iterator last, std::false_type)
     {
         iterator f = this->begin();
         iterator l = this->end();
@@ -69,12 +69,12 @@ namespace gcc
         }
 
         // if this list is longer than other then erase extra elements
-        if(first == last)
+        if(first == last && f != l)
         {
             erase(f, l);
         }
         // if this list is shorter then copy remaining elements from other
-        else
+        else if(first != last && f == l)
         {
             insert(l, first, last);
         }
@@ -142,7 +142,7 @@ namespace gcc
 
     // list public interface
 
-	// The copy assignment operator will copy assign the Allocator if propagate_on_container_move_assignment is std::false_type (not the default).
+	// The copy assignment operator will copy assign the Allocator if propagate_on_container_copy_assignment is std::true_type.
 	// There is no select_on_container_copy_assignment() like in the copy constructor.
 	template<typename Tp, typename Alloc>
     list<Tp, Alloc>& list<Tp, Alloc>::operator=(const list<Tp, Alloc>& other)
@@ -162,7 +162,7 @@ namespace gcc
 				copy_alloc_on_container_copy_assignment(this_alloc, other_alloc);
             }
         }
-        m_assign_dispatch(other.begin(), other.end(), std::false_type());
+		m_range_assign(other.begin(), other.end(), std::false_type());
         return *this;
     }
 
@@ -235,7 +235,7 @@ namespace gcc
     template<typename Input_iterator, typename>
     typename list<Tp, Alloc>::iterator list<Tp, Alloc>::insert(const_iterator position, Input_iterator first, Input_iterator last)
     {
-        list tmp(first, last, this->get_allocator());
+        list tmp(first, last, this->get_allocator()); // O(N) ctor time
         if(!tmp.empty())
         {
             iterator it = tmp.begin();

@@ -24,8 +24,12 @@ static int dummy = seed_rand();
 
 // INPUTS
 #define rand_ints {rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()}
+#define rand_ints_L {rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), \
+					 rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()}
+
 const static std::initializer_list<int> init_list_1 = rand_ints;
 const static std::initializer_list<int> init_list_2 = rand_ints;
+const static std::initializer_list<int> init_list_L = rand_ints;
 
 const static std::vector<std::string> vec_str_1 = {"list", "unit", "test", "learn", "gcc std::list", "ab", "cd", "ef", "gh", "ij", "kl", "mnop", "qrstuv", "wxy", "z"};
 const static std::vector<std::string> vec_str_2 = {"list2", "unit2", "test2", "learn2", "gcc std::list2", "ab2", "cd2", "ef2", "gh2", "ij2", "kl2", "mnop2", "qrstuv2", "wxy2", "z2"};
