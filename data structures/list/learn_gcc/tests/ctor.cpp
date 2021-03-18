@@ -17,11 +17,10 @@ TEST_CASE("default ctor", tag)
 	gcc::list<std::string> actual;
 	std::list<std::string> expected;
 
-	gcc_list<string>::iterator act = actual.begin();
-	std_list<string>::iterator exp = expected.begin();
 
-	string act_str(*act);
-	string exp_str(*exp);
+	// dereference iterator of empty list is UB
+	string act_str(*actual.begin());
+	string exp_str(*expected.begin());
 
 	REQUIRE(act_str == exp_str);
 
