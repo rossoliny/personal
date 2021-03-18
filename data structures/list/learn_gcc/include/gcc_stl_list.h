@@ -45,7 +45,7 @@ namespace gcc
         {
             detail::list_node_header m_node;
 
-            list_impl() noexcept(std::is_nothrow_default_constructible<node_alloc_type>::value)
+            list_impl() NOEXCEPT_IF(std::is_nothrow_default_constructible<node_alloc_type>::value)
                 : node_alloc_type()
             {
             }
@@ -483,7 +483,8 @@ namespace gcc
          */
         iterator begin() noexcept
         {
-            return iterator(this->m_impl.m_node.m_next);
+        	iterator res = iterator(this->m_impl.m_node.m_next);
+            return res;
         }
 
         /**

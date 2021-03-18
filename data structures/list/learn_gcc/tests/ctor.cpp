@@ -17,6 +17,14 @@ TEST_CASE("default ctor", tag)
 	gcc::list<std::string> actual;
 	std::list<std::string> expected;
 
+	gcc_list<string>::iterator act = actual.begin();
+	std_list<string>::iterator exp = expected.begin();
+
+	string act_str(*act);
+	string exp_str(*exp);
+
+	REQUIRE(act_str == exp_str);
+
 	LISTS_REQUIRE_EQUAL(actual, expected);
 }
 

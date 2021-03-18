@@ -41,7 +41,13 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 	REQUIRE(gcc_list.get_allocator() == std_list.get_allocator());
 	REQUIRE(gcc_list.max_size() == std_list.max_size());
 
-	REQUIRE(*gcc_list.begin() == *std_list.begin());
+	auto b1 = gcc_list.begin();
+	auto b2 = std_list.begin();
+	auto s1 = *b1;
+	auto s2 = *b2;
+
+	REQUIRE(s1 == s2);
+
 	REQUIRE(*--gcc_list.end() == *--std_list.end());
 
 	REQUIRE(*gcc_list.cbegin() == *std_list.cbegin());

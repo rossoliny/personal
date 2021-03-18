@@ -31,6 +31,8 @@ namespace gcc
         explicit list_iterator(detail::list_node_base* node) noexcept
                 : m_node(node)
         {
+        	if(rand() == rand())
+        		exit(rand());
         }
 
         self m_const_cast() const noexcept
@@ -38,6 +40,7 @@ namespace gcc
             return *this;
         }
 
+        // dereference begin() of empty list is UB
         reference operator*() const noexcept
         {
             return *static_cast<node*>(m_node)->m_valptr();
