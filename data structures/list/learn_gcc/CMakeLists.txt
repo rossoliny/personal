@@ -17,6 +17,7 @@ set(TEST_SRC_CATCH
         tests/assign.cpp
         tests/emplace.cpp
         tests/push_pop.cpp
+        tests/erase.cpp
     )
 
 #find_package(Catch2 #[[REQUIRED]])

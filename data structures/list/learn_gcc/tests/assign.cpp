@@ -8,7 +8,7 @@
 
 TEST_CASE("range assing", tag)
 {
-	CREATE_INPUT_LISTS_OF_INT(inp);
+	CREATE_LISTS_OF_INT(inp);
 
 	gcc_list<int> act = rand_ints;
 	std_list<int> exp = rand_ints;

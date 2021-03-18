@@ -98,7 +98,7 @@ bool check_neq(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 }
 
 
-#define CREATE_INPUT_LISTS_OF_INT(name) \
+#define CREATE_LISTS_OF_INT(name) \
 	std::initializer_list<int> ___init_list_input___ = rand_ints; \
 	gcc_list<int> gcc_##name = ___init_list_input___; \
 	std_list<int> std_##name = ___init_list_input___
