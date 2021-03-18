@@ -483,8 +483,7 @@ namespace gcc
          */
         iterator begin() noexcept
         {
-        	iterator res = iterator(this->m_impl.m_node.m_next);
-            return res;
+        	return iterator(this->m_impl.m_node.m_next);
         }
 
         /**
@@ -766,7 +765,8 @@ namespace gcc
          *  be done in constant time, and does not invalidate iterators
          *  and references.
          */
-        template<typename... Args> iterator emplace(const_iterator position, Args&&... args); // in list.tcc
+        template<typename... Args>
+        iterator emplace(const_iterator position, Args&&... args); // in list.tcc
 
         /**
          *  This function will insert a copy of the given value before
