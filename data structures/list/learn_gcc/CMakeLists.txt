@@ -14,6 +14,7 @@ set(TEST_SRC_CATCH
         tests/ctor.cpp
         tests/operator=.cpp
         tests/front_and_back.cpp
+        tests/assign.cpp
     )
 
 #find_package(Catch2 #[[REQUIRED]])

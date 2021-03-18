@@ -9,8 +9,8 @@
 
 TEST_CASE("front", tag)
 {
-	gcc_list<string> act(input_string.begin(), input_string.end());
-	gcc_list<string> exp(input_string.begin(), input_string.end());
+	gcc_list<string> act(vec_str_1.begin(), vec_str_1.end());
+	gcc_list<string> exp(vec_str_1.begin(), vec_str_1.end());
 
 	REQUIRE(act.front() == exp.front());
 
@@ -23,8 +23,8 @@ TEST_CASE("front", tag)
 
 TEST_CASE("const front", tag)
 {
-	gcc_list<string>const act(input_string.begin(), input_string.end());
-	gcc_list<string>const exp(input_string.begin(), input_string.end());
+	gcc_list<string>const act(vec_str_1.begin(), vec_str_1.end());
+	gcc_list<string>const exp(vec_str_1.begin(), vec_str_1.end());
 
 	REQUIRE(act.front() == exp.front());
 
@@ -42,8 +42,8 @@ TEST_CASE("const front", tag)
 
 TEST_CASE("back", tag)
 {
-	gcc_list<string> act(input_string.begin(), input_string.end());
-	gcc_list<string> exp(input_string.begin(), input_string.end());
+	gcc_list<string> act(vec_str_1.begin(), vec_str_1.end());
+	gcc_list<string> exp(vec_str_1.begin(), vec_str_1.end());
 
 	REQUIRE(act.back() == exp.back());
 
@@ -56,8 +56,8 @@ TEST_CASE("back", tag)
 
 TEST_CASE("const back", tag)
 {
-	gcc_list<string>const act(input_string.begin(), input_string.end());
-	gcc_list<string>const exp(input_string.begin(), input_string.end());
+	gcc_list<string>const act(vec_str_1.begin(), vec_str_1.end());
+	gcc_list<string>const exp(vec_str_1.begin(), vec_str_1.end());
 
 	REQUIRE(act.back() == exp.back());
 

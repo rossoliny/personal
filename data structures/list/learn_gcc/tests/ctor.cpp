@@ -51,8 +51,8 @@ TEST_CASE("fill ctor", tag)
 TEST_CASE("range ctor", tag)
 {
 
-	gcc_list<string> act(input_string.begin(), input_string.end());
-	std_list<string> exp(input_string.begin(), input_string.end());
+	gcc_list<string> act(vec_str_1.begin(), vec_str_1.end());
+	std_list<string> exp(vec_str_1.begin(), vec_str_1.end());
 
 	LISTS_REQUIRE_EQUAL(act, exp);
 }
@@ -62,8 +62,8 @@ TEST_CASE("copy ctor", tag)
 {
 	SECTION("with default allocator")
 	{
-		gcc_list<string> act_inp(input_string.begin(), input_string.end());
-		std_list<string> exp_inp(input_string.begin(), input_string.end());
+		gcc_list<string> act_inp(vec_str_1.begin(), vec_str_1.end());
+		std_list<string> exp_inp(vec_str_1.begin(), vec_str_1.end());
 
 		gcc_list<string> act(act_inp);
 		std_list<string> exp(exp_inp);
@@ -72,8 +72,8 @@ TEST_CASE("copy ctor", tag)
 	}
 	SECTION("with given allocator")
 	{
-		gcc_list<string> act_inp(input_string.begin(), input_string.end());
-		std_list<string> exp_inp(input_string.begin(), input_string.end());
+		gcc_list<string> act_inp(vec_str_1.begin(), vec_str_1.end());
+		std_list<string> exp_inp(vec_str_1.begin(), vec_str_1.end());
 
 		std::allocator<void> alloc;
 		gcc_list<string> act(act_inp, alloc);
@@ -88,8 +88,8 @@ TEST_CASE("move ctor", tag)
 	SECTION("with default allocator argument")
 	{
 
-		gcc_list<string> act_inp(input_string.begin(), input_string.end());
-		std_list<string> exp_inp(input_string.begin(), input_string.end());
+		gcc_list<string> act_inp(vec_str_1.begin(), vec_str_1.end());
+		std_list<string> exp_inp(vec_str_1.begin(), vec_str_1.end());
 
 		gcc_list<string> act(std::move(act_inp));
 		std_list<string> exp(std::move(exp_inp));

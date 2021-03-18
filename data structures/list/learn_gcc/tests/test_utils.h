@@ -22,21 +22,20 @@ static int dummy = seed_rand();
 #include "gcc_list"
 
 
-
-const static std::vector<std::string> input_string = {"list", "unit", "test", "learn", "gcc std::list", "ab", "cd", "ef", "gh", "ij", "kl", "mnop", "qrstuv", "wxy", "z"};
-const static std::vector<std::string> input_string_2 = {"list2", "unit2", "test2", "learn2", "gcc std::list2", "ab2", "cd2", "ef2", "gh2", "ij2", "kl2", "mnop2", "qrstuv2", "wxy2", "z2"};
-
+// INPUTS
 #define rand_ints {rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand(), rand()}
-const static std::initializer_list<int> input_int = rand_ints;
-const static std::initializer_list<int> intput_int_initializer_list = rand_ints;
+const static std::initializer_list<int> init_list_1 = rand_ints;
+const static std::initializer_list<int> init_list_2 = rand_ints;
 
+const static std::vector<std::string> vec_str_1 = {"list", "unit", "test", "learn", "gcc std::list", "ab", "cd", "ef", "gh", "ij", "kl", "mnop", "qrstuv", "wxy", "z"};
+const static std::vector<std::string> vec_str_2 = {"list2", "unit2", "test2", "learn2", "gcc std::list2", "ab2", "cd2", "ef2", "gh2", "ij2", "kl2", "mnop2", "qrstuv2", "wxy2", "z2"};
 
+// UTILS
 #define LISTS_REQUIRE_EQUAL(gcc_list, std_list) (verify((gcc_list), (std_list)))
 
 template<typename Tp, typename Alloc>
 void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 {
-
 	REQUIRE(gcc_list.size() == std_list.size());
 	REQUIRE(gcc_list.get_allocator() == std_list.get_allocator());
 	REQUIRE(gcc_list.max_size() == std_list.max_size());
@@ -66,6 +65,39 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 		++exp;
 	}
 }
+
+#define CHECK_LISTS_NEQ(gcc_list, std_list) (check_neq((gcc_list), (std_list)))
+template<typename Tp, typename Alloc>
+bool check_neq(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
+{
+	if(gcc_list.size() != std_list.size())
+		return true;
+
+	auto act = gcc_list.begin();
+	auto exp = std_list.begin();
+
+	bool full_match = true;
+	while(act != gcc_list.end())
+	{
+		if(*act != *exp)
+		{
+			full_match = false;
+			break;
+		}
+
+		++act;
+		++exp;
+	}
+
+	CHECK(not full_match);
+	return not full_match;
+}
+
+
+#define CREATE_INPUT_LISTS_OF_INT(name) \
+	std::initializer_list<int> ___init_list_input___ = rand_ints; \
+	gcc_list<int> gcc_##name = ___init_list_input___; \
+	std_list<int> std_##name = ___init_list_input___
 
 #define gcc_list gcc::list
 #define std_list std::list
