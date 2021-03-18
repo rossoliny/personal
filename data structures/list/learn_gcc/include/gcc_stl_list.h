@@ -258,7 +258,7 @@ namespace gcc
             // m_get_size returns super->m_impl.m_node.m_size
             return this->m_get_size();
         }
-        
+
         // private constructors
 	private:
     	// optimize when all allocator instance of provided type are always equal (stateless)
@@ -364,7 +364,7 @@ namespace gcc
 				: list(std::move(rval), alloc, typename node_alloc_traits::is_always_equal{})
 		{
 		}
-		
+
         /**
          *  Create a list consisting of copies of the elements in the
          *  initializer_list il.  This is linear in il.size().
@@ -374,8 +374,8 @@ namespace gcc
         {
 			m_range_initialize_dispatch(il.begin(), il.end(), std::false_type());
         }
-        
-        
+
+
     public:
 
         /**
@@ -1255,8 +1255,10 @@ namespace gcc
 
 
     }; // list
+}
 
-
+namespace std
+{
 
 
     //
@@ -1267,12 +1269,12 @@ namespace gcc
      *  equal, and if corresponding elements compare equal.
      */
     template<typename Tp, typename Alloc>
-    inline bool operator==(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator==(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         if (a.size() != b.size())
             return false;
 
-        using const_iterator = typename list<Tp, Alloc>::const_iterator;
+        using const_iterator = typename gcc::list<Tp, Alloc>::const_iterator;
         const_iterator a_end = a.end();
         const_iterator b_end = b.end();
 
@@ -1295,35 +1297,35 @@ namespace gcc
      *  See std::lexicographical_compare() for how the determination is made.
     */
     template<typename Tp, typename Alloc>
-    inline bool operator<(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator<(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
     }
 
     // Based on operator==
     template<typename Tp, typename Alloc>
-    inline bool operator!=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator!=(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         return !(a == b);
     }
 
     // Based on operator<
     template<typename Tp, typename Alloc>
-    inline bool operator>(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator>(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         return b < a;
     }
 
     /// Based on operator<
     template<typename Tp, typename Alloc>
-    inline bool operator<=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator<=(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         return !(b < a);
     }
 
     /// Based on operator<
     template<typename Tp, typename Alloc>
-    inline bool operator>=(const list<Tp, Alloc>& a, const list<Tp, Alloc>& b)
+    inline bool operator>=(const gcc::list<Tp, Alloc>& a, const gcc::list<Tp, Alloc>& b)
     {
         return !(a < b);
     }
@@ -1331,7 +1333,7 @@ namespace gcc
 
     /// See std::list::swap().
     template<typename Tp, typename Alloc>
-    inline void swap(list<Tp, Alloc>& a, list<Tp, Alloc>& b) NOEXCEPT_IF(noexcept(a.swap(b)))
+    inline void swap(gcc::list<Tp, Alloc>& a, gcc::list<Tp, Alloc>& b) NOEXCEPT_IF(noexcept(a.swap(b)))
     {
         a.swap(b);
     }
@@ -1349,7 +1351,7 @@ namespace gcc
     template<typename Tp>
     inline ptrdiff_t distance(gcc::list_const_iterator <Tp> first, gcc::list_const_iterator <Tp> last, std::input_iterator_tag tag)
     {
-        using sentinel = detail::list_node_header;
+        using sentinel = gcc::detail::list_node_header;
         gcc::list_const_iterator<Tp> beyond = last;
         ++beyond;
 

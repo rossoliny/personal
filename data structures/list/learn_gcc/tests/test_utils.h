@@ -70,6 +70,40 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 	}
 }
 
+template<typename Tp, typename Alloc>
+void verify(gcc::list<Tp, Alloc>& gcc_list, gcc::list<Tp, Alloc>& std_list)
+{
+	REQUIRE(gcc_list.size() == std_list.size());
+	REQUIRE(gcc_list.get_allocator() == std_list.get_allocator());
+	REQUIRE(gcc_list.max_size() == std_list.max_size());
+
+	REQUIRE(*gcc_list.begin() == *std_list.begin());
+
+	REQUIRE(*--gcc_list.end() == *--std_list.end());
+
+	REQUIRE(*gcc_list.cbegin() == *std_list.cbegin());
+	REQUIRE(*--gcc_list.cend() == *--std_list.cend());
+
+	REQUIRE(*gcc_list.rbegin() == *std_list.rbegin());
+	REQUIRE(*++gcc_list.rend() == *++std_list.rend());
+
+	REQUIRE(*gcc_list.crbegin() == *std_list.crbegin());
+	REQUIRE(*++gcc_list.crend() == *++std_list.crend());
+
+	auto act = gcc_list.begin();
+	auto exp = std_list.begin();
+
+	while(act != gcc_list.end())
+	{
+
+		REQUIRE(*act == *exp);
+
+		++act;
+		++exp;
+	}
+}
+
+
 #define CHECK_LISTS_NEQ(gcc_list, std_list) (check_neq((gcc_list), (std_list)))
 template<typename Tp, typename Alloc>
 bool check_neq(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
@@ -99,9 +133,9 @@ bool check_neq(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 
 
 #define CREATE_LISTS_OF_INT(name) \
-	std::initializer_list<int> ___init_list_input___ = rand_ints; \
-	gcc_list<int> gcc_##name = ___init_list_input___; \
-	std_list<int> std_##name = ___init_list_input___
+	std::initializer_list<int> ___init_list_input___##name = rand_ints; \
+	gcc_list<int> gcc_##name = ___init_list_input___##name; \
+	std_list<int> std_##name = ___init_list_input___##name
 
 #define gcc_list gcc::list
 #define std_list std::list
