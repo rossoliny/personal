@@ -120,8 +120,6 @@ namespace gcc
             }
 
         private:
-
-        public:
             // implicitly casts this into to list_node_base and return pointer;
             list_node_base* m_base()
             {
@@ -194,6 +192,7 @@ namespace gcc
     template<typename Tp>
     struct list_node : public detail::list_node_base
     {
+#ifdef NODE_USE_CPP_11
         gcc::aligned_membuf<Tp> m_storage;
 
         // pointer to actual data
@@ -207,6 +206,17 @@ namespace gcc
         {
             return m_storage.m_ptr();
         }
+#else
+		Tp m_data;
+		Tp* m_valptr()
+		{
+			return std::addressof(m_data);
+		}
+		Tp const* m_valptr() const
+		{
+			return std::addressof(m_data);
+		}
+#endif
     };
 }
 

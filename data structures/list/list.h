@@ -11,14 +11,117 @@ namespace isa
         class list_iterator;
         class const_list_iterator;
 
-        struct node
+		
+        struct node_base
         {
             node* next;
             node* prev;
-            T* content;
 
-            friend class list;
+			void m_hook(node_base* pos)
+			{
+
+			}
+
+			void m_unhook(node_base* pos)
+			{
+
+			}
+
+			void m_transfer(node_base* pos)
+			{
+
+			}
+
+			static void swap()
+			{
+
+			}
+
+			void m_reverse()
+			{
+
+			}
         };
+
+
+		struct node_header : public node_base
+		{
+		private:
+			size_t m_size;
+
+			inline bool m_empty()
+			{
+				return m_next == m_base();
+			}
+
+			m_init()
+			{
+				this->m_next = this->m_prev = this;
+				this->m_size = 0;
+			}
+
+			node_base* m_base()
+			{
+				return this;
+			}
+
+		public:
+			node_header() noexcept
+			{
+				m_init();
+			}
+
+			node_header(node_header&& rval) noexcept
+				: node_base { rval.m_next, rval.m_prev }
+				, m_size(rval.m_size)
+			{
+				if(rval.m_empty())
+				{
+					this->m_next = this->m_prev = this;
+				}
+				else
+				{
+					// prev -> this -> next
+					this->m_prev->m_next = this->m_next->m_prev = this;
+					rval.m_init();
+				}
+
+			}
+
+			move_nodes(node_header&& rval) noexcept
+			{
+				if(rval.m_empty())
+				{
+					m_init();
+				}
+				else
+				{
+					this->m_next = rval.m_next;
+					this->m_prev = rval.m_prev;
+
+					this->m_prev->m_next = this->m_next->m_prev = this;
+					this->m_size = rval.m_size;
+					rval.m_init();
+				}
+			}
+		};
+
+
+		template<typename T>
+		struct list_node : public node_base
+		{
+			T m_data;
+
+			T* data_ptr()
+			{
+				std::addresof(m_data);
+			}
+
+			T const* data_ptr() const
+			{
+				std::addresof(m_data);
+			}
+		};
 
     public:
         using value_type = T;
