@@ -14,6 +14,9 @@ using namespace std;
 
 TEST_CASE("default ctor", tag)
 {
+	std::allocator<std::string> alloc;
+	gcc::list<std::string> m(alloc);
+
 	gcc::list<std::string> actual;
 	std::list<std::string> expected;
 

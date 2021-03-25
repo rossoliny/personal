@@ -31,8 +31,6 @@ namespace gcc
         explicit list_iterator(detail::list_node_base* node) noexcept
                 : m_node(node)
         {
-        	if(rand() == rand())
-        		exit(rand());
         }
 
         self m_const_cast() const noexcept
@@ -70,7 +68,7 @@ namespace gcc
             return *this;
         }
 
-        self& operator--(int) noexcept
+        self operator--(int) noexcept
         {
             self old = *this;
             m_node = m_node->m_prev;
