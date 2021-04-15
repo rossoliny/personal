@@ -97,14 +97,14 @@ namespace gcc
         {
             return s_distance(first, last);
         }
-
-        // if not inline version
-        // return the stored size
-        size_t m_node_count() const
-        {
-            // return m_impl.m_node.m_size
-            return m_get_size();
-        }
+//
+//        // if not inline version
+//        // return the stored size
+//        size_t m_node_count() const
+//        {
+//            // return m_impl.m_node.m_size
+//            return m_get_size();
+//        }
 
 
         // uses m_impl.allocate to allocate m_impl::value_type (aka list_node<Tp>)
@@ -154,8 +154,8 @@ namespace gcc
 
         // Used when allocator is_always_equal is true.
         //
-        list_base(node_alloc_type&& impl, list_base&& other)
-            : m_impl(std::move(impl), std::move(other.m_impl)) // calls allocator_type's ctor and passes args there
+        list_base(node_alloc_type&& alloc, list_base&& other)
+            : m_impl(std::move(alloc), std::move(other.m_impl)) // calls allocator_type's ctor and passes args there
         {
         }
 

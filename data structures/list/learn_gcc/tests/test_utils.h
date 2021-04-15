@@ -71,27 +71,27 @@ void verify(gcc::list<Tp, Alloc>& gcc_list, std::list<Tp, Alloc>& std_list)
 }
 
 template<typename Tp, typename Alloc>
-void verify(gcc::list<Tp, Alloc>& gcc_list, gcc::list<Tp, Alloc>& std_list)
+void verify(gcc::list<Tp, Alloc>& gcc_list, gcc::list<Tp, Alloc>&gcc_list_2)
 {
-	REQUIRE(gcc_list.size() == std_list.size());
-	REQUIRE(gcc_list.get_allocator() == std_list.get_allocator());
-	REQUIRE(gcc_list.max_size() == std_list.max_size());
+	REQUIRE(gcc_list.size() == gcc_list_2.size());
+	REQUIRE(gcc_list.get_allocator() == gcc_list_2.get_allocator());
+	REQUIRE(gcc_list.max_size() == gcc_list_2.max_size());
 
-	REQUIRE(*gcc_list.begin() == *std_list.begin());
+	REQUIRE(*gcc_list.begin() == *gcc_list_2.begin());
 
-	REQUIRE(*--gcc_list.end() == *--std_list.end());
+	REQUIRE(*--gcc_list.end() == *--gcc_list_2.end());
 
-	REQUIRE(*gcc_list.cbegin() == *std_list.cbegin());
-	REQUIRE(*--gcc_list.cend() == *--std_list.cend());
+	REQUIRE(*gcc_list.cbegin() == *gcc_list_2.cbegin());
+	REQUIRE(*--gcc_list.cend() == *--gcc_list_2.cend());
 
-	REQUIRE(*gcc_list.rbegin() == *std_list.rbegin());
-	REQUIRE(*++gcc_list.rend() == *++std_list.rend());
+	REQUIRE(*gcc_list.rbegin() == *gcc_list_2.rbegin());
+	REQUIRE(*++gcc_list.rend() == *++gcc_list_2.rend());
 
-	REQUIRE(*gcc_list.crbegin() == *std_list.crbegin());
-	REQUIRE(*++gcc_list.crend() == *++std_list.crend());
+	REQUIRE(*gcc_list.crbegin() == *gcc_list_2.crbegin());
+	REQUIRE(*++gcc_list.crend() == *++gcc_list_2.crend());
 
 	auto act = gcc_list.begin();
-	auto exp = std_list.begin();
+	auto exp = gcc_list_2.begin();
 
 	while(act != gcc_list.end())
 	{

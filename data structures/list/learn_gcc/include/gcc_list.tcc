@@ -161,8 +161,8 @@ namespace gcc
                 }
 				copy_alloc_on_container_copy_assignment(this_alloc, other_alloc);
             }
-        }
-		m_range_assign(other.begin(), other.end(), std::false_type());
+			m_range_assign(other.begin(), other.end(), std::false_type());
+		}
         return *this;
     }
 
