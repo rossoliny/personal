@@ -13,10 +13,10 @@ idle:
 %include "./include/_puts.asm"
 
 _HELLO_MSG_:
-	db 'Hello, World!', 0xA, 0xD, 0
+	db 'Hello, World!', 0
 
 _GOODBYE_MSG_:
-	db 'Goodbye', 0xA, 0xD, 0
+	db 'Goodbye', 0
 
 times 510-($-$$) db 0
 dw 0xaa55
