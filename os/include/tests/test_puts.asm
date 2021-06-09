@@ -10,7 +10,7 @@ call _puts
 idle:
 	jmp $
 
-%include "./include/_puts.asm"
+%include "../_puts.asm"
 
 _HELLO_MSG_:
 	db 'Hello, World!', 0
