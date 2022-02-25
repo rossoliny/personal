@@ -16,3 +16,4 @@ cmake-build-*
 *.bin
 !*.asm
 !*.md
+!*.csv

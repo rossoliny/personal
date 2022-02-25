@@ -35,7 +35,7 @@ namespace nokia_test
 	// op_1 and op_2 must be empty
 	csv_calculator::operation csv_calculator::extract_operands_and_operator(const std::string& cell, std::string& op_1, std::string& op_2)
 	{
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "extracting operands from: " << cell << std::endl;
 		#endif
 		
@@ -92,7 +92,7 @@ namespace nokia_test
 	}
 
 	
-	#ifdef DEBUG
+	#ifdef CSVREADER_DEBUG
 	int csv_calculator::extract_operand(const std::string& operand, int operand_num)
 	#else
 	int csv_calculator::extract_operand(const std::string& operand)
@@ -103,7 +103,7 @@ namespace nokia_test
 		{
 			// just parsing to int
 			op_1_val = std::stoi(operand);
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "operand " << operand_num << " is a number: " << op_1_val << std::endl;
 			#endif
 		}
@@ -135,12 +135,12 @@ namespace nokia_test
 				}
 			}
 
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "operand " << operand_num << " is a link: [" << c << "][" << r << "]" << std::endl;
 			#endif
 			// recursive calculation
 			op_1_val = calculate_cell(c, std::stoi(r));
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "\tafter recursive call to calculate link\n";
 			debug_output << "\tcalculated value of a operand " << operand_num << ": " << op_1_val << '\n';
 			#endif
@@ -150,7 +150,7 @@ namespace nokia_test
 
 	void csv_calculator::validate_cell_content(const std::string& cell, const std::string& column, int row)
 	{
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "validating cell \'" << column << row << "\': " << cell << std::endl;
 		#endif
 		// if does not start with = or - then it must contain only digits
@@ -158,7 +158,7 @@ namespace nokia_test
 		int i = 0;
 		if((cell[0] != '=' && cell[0] != '-') || cell[i++] == '-')
 		{
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "cell \'" << column << row << "\': " << cell << " is an expression"<< std::endl;
 			#endif
 			for(;i < cell.size(); ++i)
@@ -191,13 +191,13 @@ namespace nokia_test
 	// RECURSIVLY CALCULATED NESTED CELLS
 	int csv_calculator::calculate_cell(const std::string& column, int row)
 	{
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "\ncell[" << column << "][" << row << "]: \'" << csv_tree[column][row] << "\'" << std::endl;
 		#endif
 
 		std::string& cell = extract_cell_content(column, row);
 
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "call number: " << calculate_cell_call_count << std::endl;
 		calculate_cell_call_count++;
 		#endif
@@ -205,7 +205,7 @@ namespace nokia_test
 		// cell must be calculated
 		if(cell[0] == '=')
 		{
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "cell must be calculated" << std::endl;
 			#endif
 			// string representation of first and second operands
@@ -215,7 +215,7 @@ namespace nokia_test
 		   // get operation and init operands;
 			op = extract_operands_and_operator(cell, op_1, op_2);
 			
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "expression: " << op_1 << (char)op << op_2 << '\n';
 			#endif
 			
@@ -223,7 +223,7 @@ namespace nokia_test
 			// else just parse to int
 			// if operand_2 is a link -> extract col and row from link and recursive call and parse result to int
 			// else just parse to int
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			int op_1_val = extract_operand(op_1, 1);
 			int op_2_val = extract_operand(op_2, 2);
 			#else
@@ -232,7 +232,7 @@ namespace nokia_test
 			#endif
 			
 		   // execute operation
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "executing operation: " << op_1_val << (char)op << op_2_val << '\n';
 			#endif
 			
@@ -243,7 +243,7 @@ namespace nokia_test
 				throw std::runtime_error("Division by zero in cell \'" + column + std::to_string(row) +"\': " + op_1 + " / " + op_2);
 			}
 			// return result
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "\texecution result: " << op_1_val << (char)op << op_2_val << '=' << result << '\n';
 			debug_output << "done calculating cell[" << column << "][" << row << "]: \'" << cell << "\'" << std::endl;
 			#endif
@@ -254,7 +254,7 @@ namespace nokia_test
 		// cell is already calculated
 		else
 		{
-			#ifdef DEBUG
+			#ifdef CSVREADER_DEBUG
 			debug_output << "cell is already calculated: " << cell << std::endl;
 			#endif
 			return std::stoi(cell);
@@ -263,7 +263,7 @@ namespace nokia_test
 
 	void csv_calculator::build_csv_tree(std::istream& in)
 	{
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "START READING CSV" << std::endl;
 		#endif
 
@@ -319,7 +319,7 @@ namespace nokia_test
 			}
 		}
 		// PRINT BUILT TREE TO CHECK IF REPRESENTATION IS CORRECT
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "CHECK TREE OF INPUT CSV" << std::endl;
 		print_csv_tree(debug_output, true);
 		#endif
@@ -327,7 +327,7 @@ namespace nokia_test
 
 	void csv_calculator::process_csv_tree()
 	{
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << std::endl << "Start calculations\n" << std::endl;
 		#endif
 		// SCAN CELLS AND CALCULATE EXPRESSIONS
@@ -346,7 +346,7 @@ namespace nokia_test
 			}
 		}
 		
-		#ifdef DEBUG
+		#ifdef CSVREADER_DEBUG
 		debug_output << "Finished calculations.\nRecursive calls: " << calculate_cell_call_count << std::endl;
 		debug_output << "\nResulting CSV" << '\n';
 		#endif

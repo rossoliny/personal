@@ -24,7 +24,7 @@ namespace nokia_test
         std::vector<std::string> columns;
         std::vector<int> rows;
         
-        #ifdef DEBUG
+        #ifdef CSVREADER_DEBUG
         std::ostream& debug_output = std::cout;
         size_t calculate_cell_call_count = 0;
         #endif
@@ -39,7 +39,7 @@ namespace nokia_test
         // EXECUTES GIVE OPERATION
         bool execute_operation(operation operation, int a, int b, int& result);
         
-        #ifdef DEBUG
+        #ifdef CSVREADER_DEBUG
         int extract_operand(const std::string& operand, int operand_num);
         #else
         int extract_operand(const std::string& operand);
