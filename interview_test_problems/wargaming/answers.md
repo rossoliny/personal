@@ -152,7 +152,7 @@ void radix_sort_b16(int* const arr, int len)
         a = res;
         res = tmp;
     }
-    if(res != a) 
+    if(a == res_buf) 
     {
         for(int i = 0; i < len; ++i)
         {
