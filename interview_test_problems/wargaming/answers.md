@@ -108,13 +108,13 @@ public:
 
 
 ```
-int find_max(const int* a, int len)
+int find_max(const int* arr, int len)
 {
-    int max = a[0];
+    int max = arr[0];
     for(int i = 1; i < len; i++)
     {
-        if(a[i] > max)
-            max = a[i];
+        if(arr[i] > max)
+            max = arr[i];
     }
     return max;
 }
