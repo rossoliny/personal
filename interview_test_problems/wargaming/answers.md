@@ -108,12 +108,26 @@ public:
 
 
 ```
-void radix_sort_b16(int* a, int len)
+int find_max(int* a, int len)
 {
-    int max = find_max(a, len);
-    int res[len];
+    int max = a[0];
+    for(int i = 1; i < len; i++)
+    {
+        if(a[i] > max)
+            max = a[i];
+    }
+    return max;
+}
+
+void radix_sort_b16(int* const arr, int len)
+{
+    int res_buf[len];
     int digits[16];
     
+    int* a = arr;
+    int* res = res_buf;
+    
+    int max = find_max(a, len);
     for(int order = 1; max > 0; order <<= 4, max >>= 4)
     {
         memset(digits, 0, sizeof(digits));
@@ -134,9 +148,15 @@ void radix_sort_b16(int* a, int len)
             res[--digits[(a[i] / order) & 15]] = a[i];
         }
         
+        int* tmp = a;
+        a = res;
+        res = tmp;
+    }
+    if(res != a) 
+    {
         for(int i = 0; i < len; ++i)
         {
-            a[i] = res[i];
+            arr[i] = res_buf[i];
         }
     }
 }
