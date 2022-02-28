@@ -121,6 +121,8 @@ int find_max(const int* arr, int len)
     return max;
 }
 
+// O(log_b(max) * (n + b)), where b = 16
+// O(log_16(max) * (n + 16))
 void radix_sort_b16(int* const arr, int len)
 {
     int res_buf[len];
