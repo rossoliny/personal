@@ -108,7 +108,7 @@ public:
 
 
 ```
-int find_max(int* a, int len)
+int find_max(int* const a, int len)
 {
     int max = a[0];
     for(int i = 1; i < len; i++)
